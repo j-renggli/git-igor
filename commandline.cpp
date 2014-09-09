@@ -54,7 +54,7 @@ std::vector<std::string> CommandLine::getCommandArgs() const
       if (end != begin)
       {
         tokens.push_back(original.substr(begin, end - begin));
-        return tokens;
+        break;
       }
     }
 
@@ -71,6 +71,15 @@ std::vector<std::string> CommandLine::getCommandArgs() const
         begin = original.find_first_not_of(" ", begin);
     }
   }
+
+  if (tokens.empty())
+    return tokens;
+
+  auto it = fullpaths_.find(tokens[0]);
+  assert(it != fullpaths_.end());
+  if (it != fullpaths_.end())
+    tokens[0] = it->second;
+  return tokens;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -134,6 +143,7 @@ void CommandLine::setCwd(const boost::filesystem::path& cwd)
       continue;
 
     const std::string name = it->path().filename().string();
+    fullpaths_[name] = it->path().string();
     cwdVars_ << name.c_str();
   }
 }
@@ -167,6 +177,7 @@ void CommandLine::setPathVars()
         continue;
 
       const std::string name = it->path().filename().string();
+      fullpaths_[name] = it->path().string();
       pathVars_ << name.c_str();
     }
 

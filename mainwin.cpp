@@ -111,8 +111,14 @@ void MainWin::onRunCommand()
     dup2(out_pipe[1], STDOUT_FILENO);
     dup2(err_pipe[1], STDERR_FILENO);
 
-//    std::cout << "Run" << std::endl;
-    execl("/bin/ls", "ls", "/home/jrenggli", /*"ls",*/ (char*)0);
+    char** args = new char*[arguments.size()+1];
+    for (size_t i = 0; i < arguments.size(); ++i)
+    {
+      args[i] = strdup(arguments[i].c_str());
+    }
+    args[arguments.size()] = 0;
+
+    execv(args[0], args);
     std::cout << "Done" << std::endl;
     _exit(127);
   }
@@ -121,6 +127,7 @@ void MainWin::onRunCommand()
   ::close(out_pipe[1]);
   ::close(err_pipe[1]);
 
+  std::vector<std::string> vOutput;
   if (pid < 0)
   {
     std::cout << ":(((" << std::endl;
@@ -135,7 +142,7 @@ void MainWin::onRunCommand()
     char output[buf_size];
     while (fgets(output, buf_size, out))
     {
-      std::cout << "OUT: " << output << std::endl;
+      vOutput.push_back(output);
     }
     std::cout << "FINOUT" << std::endl;
     while (fgets(output, buf_size, err))
@@ -147,7 +154,10 @@ void MainWin::onRunCommand()
     waitpid(pid, &status, 0);
   }
 
-  pOutput_->setText("");
+  std::string strResult;
+  for (size_t i = 0; i < vOutput.size(); ++i)
+    strResult += vOutput[i];
+  pOutput_->setText(strResult.c_str());
 }
 
 ////////////////////////////////////////////////////////////////

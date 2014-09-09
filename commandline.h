@@ -23,6 +23,7 @@ public:
   /// Returns the command as in field
   std::string getCommand() const;
   /// Returns the command as separate arguments for use in execl & similar
+  /// First item contains full path of executable
   std::vector<std::string> getCommandArgs() const;
 
 private:
@@ -41,6 +42,8 @@ private:
   boost::filesystem::path cwd_;
   QStringList pathVars_;
   QStringList cwdVars_;
+
+  std::map<std::string, std::string> fullpaths_;
 
   QCompleter* completer_;
 
