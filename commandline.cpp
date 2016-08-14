@@ -1,8 +1,10 @@
 #include "commandline.h"
 
-#include <QtGui/QCompleter>
+#include "cccassert.h"
+
+#include <QtWidgets/QCompleter>
 #include <QtGui/QKeyEvent>
-#include <QtGui/QStringListModel>
+#include <QtCore/QStringListModel>
 
 #include <iostream>
 
@@ -19,6 +21,7 @@ CommandLine::CommandLine()
   completer_ = new QCompleter(model, this);
   setCompleter(completer_);
 
+  setHome(getenv("HOME"));
   setCwd(getenv("PWD"));
 
   connect(this, SIGNAL(textEdited(const QString&)), this, SLOT(onTextEdited(const QString&)));
@@ -33,6 +36,13 @@ CommandLine::~CommandLine()
 
 ////////////////////////////////////////////////////////////////
 
+void CommandLine::clear()
+{
+  setText("");
+}
+
+////////////////////////////////////////////////////////////////
+
 std::string CommandLine::getCommand() const
 {
   return std::string(text().toUtf8().constData());
@@ -40,11 +50,11 @@ std::string CommandLine::getCommand() const
 
 ////////////////////////////////////////////////////////////////
 
-std::vector<std::string> CommandLine::getCommandArgs() const
+bool CommandLine::getCommandArgs(std::vector<std::string>& tokens) const
 {
   const std::string original = getCommand();
   const std::string special = "'\"` ";
-  std::vector<std::string> tokens;
+  tokens.clear();
   size_t begin = 0;
   while (true)
   {
@@ -73,20 +83,23 @@ std::vector<std::string> CommandLine::getCommandArgs() const
   }
 
   if (tokens.empty())
-    return tokens;
+    return false;
 
   auto it = fullpaths_.find(tokens[0]);
-  assert(it != fullpaths_.end());
+  //assert(it != fullpaths_.end());
   if (it != fullpaths_.end())
-    tokens[0] = it->second;
-  return tokens;
+  {
+    //tokens[0] = it->second;
+    return true;
+  }
+
+  return false;
 }
 
 ////////////////////////////////////////////////////////////////
 
 void CommandLine::keyPressEvent(QKeyEvent* event)
 {
-  std::cout << event->key() << std::endl;
   if (event->key() == Qt::Key_Tab)
   {
     tryAutocomplete();
@@ -150,6 +163,13 @@ void CommandLine::setCwd(const boost::filesystem::path& cwd)
 
 ////////////////////////////////////////////////////////////////
 
+void CommandLine::setHome(const boost::filesystem::path& home)
+{
+  home_ = home;
+}
+
+////////////////////////////////////////////////////////////////
+
 void CommandLine::setPathVars()
 {
   pathVars_.clear();
@@ -184,6 +204,11 @@ void CommandLine::setPathVars()
     if (next == strPath.npos)
       break;
   }
+}
+
+void CommandLine::setCommand(const std::string& command)
+{
+  pathVars_ << command.c_str();
 }
 
 ////////////////////////////////////////////////////////////////

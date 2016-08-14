@@ -1,0 +1,42 @@
+#pragma once
+
+#include <QtCore/QDir>
+#include <QtCore/QObject>
+
+#include <backend/repository.h>
+
+namespace gitkit {
+
+class Backend : public QObject
+{
+  Q_OBJECT
+	
+public:
+	static Backend& instance();
+	virtual ~Backend() {}
+	
+	const Repository& currentRepo() const { return repositories_.at(current_repo_); }
+
+private:
+	Backend();
+
+signals:
+	void onRepoUpdated();
+	
+public slots:
+	Q_INVOKABLE void onRefresh();
+	Q_INVOKABLE void onFetch();
+	
+private:
+	/// Path to the git executable
+	QDir gitPath_;
+	
+	/// Known repositories
+	std::vector<Repository> repositories_;
+	size_t current_repo_;
+	
+private:
+	static Backend s_backend;
+};
+
+}

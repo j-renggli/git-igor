@@ -1,17 +1,21 @@
 #include "mainwin.h"
 
 #include <cstdio>
-//#include <iostream>
+#include <iostream>
 //#include <fcntl.h>
 //#include <fstream>
 #include <unistd.h>
 #include <sys/wait.h>
 
 #include <QtGui/QKeyEvent>
-#include <QtGui/QMenuBar>
-#include <QtGui/QVBoxLayout>
+#include <QtWidgets/QMenuBar>
+#include <QtWidgets/QVBoxLayout>
 
-namespace ccc {
+#include <interface/backend.h>
+#include <interface/view.h>
+#include <interface/staging.h>
+
+namespace gitkit {
 
 ////////////////////////////////////////////////////////////////
 
@@ -22,33 +26,29 @@ MainWin::MainWin()
 
   auto tab_layout = new QVBoxLayout;
   pMainView_->setLayout(tab_layout);
+	
+	view_ = new UIView;
+	view_->doConnect();
+	
+	staging_ = new UIStaging;
+	staging_->initialise();
+	addDockWidget(Qt::LeftDockWidgetArea, staging_);
 
-  pHistory_ = new QTableView;
-
-  pCommand_ = new CommandLine;
-//  connect(pCommand_, SIGNAL(textChanged()), this, SLOT(onRunCommand()));
-  connect(pCommand_, SIGNAL(returnPressed()), this, SLOT(onRunCommand()));
-  pCommand_->setFocus();
-
-  pOutput_ = new QTextEdit;
-  pOutput_->setReadOnly(true);
-  pOutput_->setText("Here comes the output");
-
-  tab_layout->addWidget(pHistory_);
-  tab_layout->addWidget(pCommand_);
-  tab_layout->addWidget(pOutput_);
-
+	tab_layout->addWidget(view_);
+	
   createActions();
   updateMenu();
   updateToolbar();
 
-  setWindowTitle("CCC");
+  setWindowTitle("Git-Kit");
+	resize(QSize(800, 600));
 }
 
 ////////////////////////////////////////////////////////////////
 
 MainWin::~MainWin()
 {
+	/*
   for (auto it = mActions_.begin(); it != mActions_.end(); ++it)
     delete it->second;
 
@@ -56,17 +56,25 @@ MainWin::~MainWin()
   delete pCommand_;
   delete pOutput_;
   delete pToolbar_;
+	*/
 }
 
 ////////////////////////////////////////////////////////////////
 
 bool MainWin::createActions()
 {
-  auto quit = new QAction("&Quit", this);
+	std::shared_ptr<QAction> quit(new QAction("&Quit", this));
   quit->setShortcuts(QKeySequence::Quit);
   quit->setStatusTip("Quit the application");
-  connect(quit, SIGNAL(triggered()), this, SLOT(close()));
+  connect(quit.get(), SIGNAL(triggered()), this, SLOT(close()));
   mActions_[0] = quit;
+	
+	Backend& backend = Backend::instance();
+	std::shared_ptr<QAction> refresh(new QAction("Refresh", this));
+	refresh->setShortcuts(QKeySequence::Refresh);
+	refresh->setStatusTip("Refresh the UI");
+	connect(refresh.get(), SIGNAL(triggered()), &backend, SLOT(onRefresh()));
+	mActions_[1] = refresh;
 
   return true;
 }
@@ -90,82 +98,17 @@ bool MainWin::createActions()
 
 ////////////////////////////////////////////////////////////////
 
-void MainWin::onRunCommand()
-{
-  const std::vector<std::string> arguments = pCommand_->getCommandArgs();
-  for (size_t i = 0; i < arguments.size(); ++i)
-    std::cout << arguments[i] << "][";
-  std::cout << std::endl;
-
-  pid_t pid = 0;
-  int out_pipe[2];
-  int err_pipe[2];
-  pipe(out_pipe);
-  pipe(err_pipe);
-  pid = fork();
-  if (pid == 0)
-  {
-    // Child process
-    ::close(out_pipe[0]);
-    ::close(err_pipe[0]);
-    dup2(out_pipe[1], STDOUT_FILENO);
-    dup2(err_pipe[1], STDERR_FILENO);
-
-    char** args = new char*[arguments.size()+1];
-    for (size_t i = 0; i < arguments.size(); ++i)
-    {
-      args[i] = strdup(arguments[i].c_str());
-    }
-    args[arguments.size()] = 0;
-
-    execv(args[0], args);
-    std::cout << "Done" << std::endl;
-    _exit(127);
-  }
-
-  std::cout << "Parent" << std::endl;
-  ::close(out_pipe[1]);
-  ::close(err_pipe[1]);
-
-  std::vector<std::string> vOutput;
-  if (pid < 0)
-  {
-    std::cout << ":(((" << std::endl;
-    ::close(out_pipe[1]);
-    ::close(err_pipe[1]);
-  } else {
-    std::cout << "wait..." << std::endl;
-    FILE* out = fdopen(out_pipe[0], "r");
-    FILE* err = fdopen(err_pipe[0], "r");
-
-    const int buf_size = 1024;
-    char output[buf_size];
-    while (fgets(output, buf_size, out))
-    {
-      vOutput.push_back(output);
-    }
-    std::cout << "FINOUT" << std::endl;
-    while (fgets(output, buf_size, err))
-    {
-      std::cout << "ERR: " << output << std::endl;
-    }
-    std::cout << "FINERR" << std::endl;
-    int status;
-    waitpid(pid, &status, 0);
-  }
-
-  std::string strResult;
-  for (size_t i = 0; i < vOutput.size(); ++i)
-    strResult += vOutput[i];
-  pOutput_->setText(strResult.c_str());
-}
+//void MainWin::onRunCommand()
+//{
+//}
 
 ////////////////////////////////////////////////////////////////
 
 bool MainWin::updateMenu()
 {
   auto file = menuBar()->addMenu("&File");
-  file->addAction(mActions_[0]);
+  file->addAction(mActions_[0].get());
+	file->addAction(mActions_[1].get());
 
   return true;
 }
@@ -174,8 +117,9 @@ bool MainWin::updateMenu()
 
 bool MainWin::updateToolbar()
 {
-  pToolbar_ = addToolBar("File");
-  pToolbar_->addAction(mActions_[0]);
+  pToolbar_.reset(addToolBar("File"));
+  pToolbar_->addAction(mActions_[0].get());
+	pToolbar_->addAction(mActions_[1].get());
 
   return true;
 }

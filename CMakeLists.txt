@@ -1,10 +1,14 @@
-PROJECT(ccc)
+PROJECT(gitkit)
 
-cmake_minimum_required(VERSION 2.8)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
 
 SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR})
 
-FIND_PACKAGE(Qt4 REQUIRED)
+#FIND_PACKAGE(Qt5Quick REQUIRED)
+FIND_PACKAGE(Qt5Core REQUIRED)
+FIND_PACKAGE(Qt5Gui REQUIRED)
+FIND_PACKAGE(Qt5Widgets REQUIRED)
+FIND_PACKAGE(Qt5WebKitWidgets REQUIRED)
 
 ######## ALL DLLs ########
 
@@ -13,55 +17,50 @@ FIND_PACKAGE(Qt4 REQUIRED)
 ######## SETUP ########
 
 SET(CMAKE_VERBOSE_MAKEFILE 0)
-SET(CMAKE_CXX_FLAGS_DEBUG "-Wall -O -ansi -pedantic -std=c++11 -g -pg -Wno-long-long -DDEBUG")
-SET(CMAKE_CXX_FLAGS_RELEASE "-Wall -O3 -ansi -pedantic -std=c++11 -g -pg -Wno-long-long")
+SET(CMAKE_CXX_FLAGS_DEBUG "-Wall -Werror -O -ansi -pedantic -std=c++11 -g -pg -fpic -fvisibility=hidden -fvisibility-inlines-hidden -Wno-long-long -DDEBUG")
+SET(CMAKE_CXX_FLAGS_RELEASE "-Wall -Werror -O3 -ansi -pedantic -std=c++11 -g -pg -fpic -fvisibility=hidden -fvisibility-inlines-hidden -Wno-long-long")
 
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
 SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY bin)
 
-INCLUDE_DIRECTORIES(. /usr/include/qt4)
+INCLUDE_DIRECTORIES(. ${Qt5Core_INCLUDE_DIRS})
 
 ######## QT ########
 
-# the next line sets up include and link directories and defines some variables that we will use.
-# you can modify the behavior by setting some variables, e.g.
-#   set(QT_USE_OPENGL TRUE)
-# -> this will cause cmake to include and link against the OpenGL module
-#SET(QT_USE_OPENGL TRUE)
-include(${QT_USE_FILE})
-
-# the variable "QT_SRC" contains all .cpp files of this project
-SET(QT_SRC
-commandline.cpp
-mainwin.cpp
-)
-
-SET(QT_H
-commandline.h
-mainwin.h
-)
-
-# After this call, foo_MOC_SRCS = moc_Class1.cxx moc_Class2.cxx moc_Class3.cxx.
-SET(QT_WRAP_UI "1")
-
-QT4_WRAP_UI(QT_UI_H ${QT_UI})
-QT4_WRAP_CPP(QT_MOC_SRC ${QT_H})
+SET(CMAKE_AUTOMOC ON)
 
 ######## SOURCE CODE ########
 
-SET(CCC_SRC
-ccc.cpp
+FILE(GLOB GITKIT_H *.h)
+
+SET(GITKIT_SRC
+#commandline.cpp
+gitkit.cpp
+mainwin.cpp
+
+backend/repository.cpp
+
+interface/backend.cpp
+interface/staging.cpp
+interface/view.cpp
 )
 
 ######## LINKER ########
 
 LINK_LIBRARIES(
-boost_filesystem
+#boost_filesystem
 boost_system
 
-QtGui
+#Qt5Quick
+Qt5Core
+Qt5Gui
+#Qt5Qml
+Qt5Widgets
+Qt5WebKitWidgets
+Qt5WebKit
 )
 
 ######## EXECUTABLE ########
 
-ADD_EXECUTABLE(ccc ${CCC_SRC} ${QT_SRC} ${QT_MOC_SRC} ${QT_UI_H})
+ADD_EXECUTABLE(gitkit ${GITKIT_SRC})
+

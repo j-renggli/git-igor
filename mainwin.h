@@ -1,15 +1,23 @@
 #pragma once
 
-#include <QtGui/QAction>
-#include <QtGui/QMainWindow>
-#include <QtGui/QTableView>
-#include <QtGui/QTabWidget>
-#include <QtGui/QTextEdit>
-#include <QtGui/QToolBar>
+#include <memory>
 
-#include "commandline.h"
+#include <QtWidgets/QAction>
+#include <QtWidgets/QMainWindow>
+#include <QtWidgets/QTableView>
+#include <QtWidgets/QTabWidget>
+#include <QtWidgets/QTextEdit>
+#include <QtWidgets/QToolBar>
+//#include <QtWebKitWidgets/QWebEngineView>
 
-namespace ccc {
+//#include "commandline.h"
+
+//#include "interface/view.h"
+
+namespace gitkit {
+
+class UIStaging;
+class UIView;
 
 class MainWin : public QMainWindow
 {
@@ -27,21 +35,19 @@ private:
 
 //  bool eventFilter(QObject* obj, QEvent* event) override;
 
-private slots:
-  void onRunCommand();
+//private slots:
+  //void onRunCommand();
 
 private:
-  QToolBar* pToolbar_;
+  std::unique_ptr<QToolBar> pToolbar_;
 
   /// Actions
-  std::map<int, QAction*> mActions_;
+  std::map<int, std::shared_ptr<QAction> > mActions_;
 
   QTabWidget* pMainView_;
 
-  QTableView* pHistory_;
-  CommandLine* pCommand_;
-  QTextEdit* pOutput_;
-
+	UIView* view_;
+	UIStaging* staging_;
 };
 
 }
