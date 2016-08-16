@@ -80,7 +80,7 @@ std::vector<Diff> Repository::diff(const FileStatus& file, bool indexed) const
 	
 	QProcess process;
 	QStringList args;
-	args << "diff";
+	args << "diff" << "--no-color";
 	if (indexed)
 		args << "--cached";
 		
