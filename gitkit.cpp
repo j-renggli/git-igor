@@ -16,7 +16,9 @@ int main(int argc, char* argv[])
   app.setStyleSheet(sheet);
 
   gitkit::MainWin window;
-  window.setMinimumSize(400, 300);
+	window.resize(800, 600);
+  //window.setMinimumSize(400, 300);
+	window.initialise();
   window.show();
   return app.exec();
 }

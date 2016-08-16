@@ -25,7 +25,7 @@ class FileStatus
 		bool operator<(const FileStatus& rhs) const;
 		
 		QFileInfo path() const { return path_; }
-		eStatus status(bool index) const { return index ? index_ : workTree_; }
+		eStatus status(bool indexed) const { return indexed ? index_ : workTree_; }
 	
 	private:
 		QFileInfo path_; // Rename -> renamed path !?
@@ -34,12 +34,29 @@ class FileStatus
 		bool conflict_;
 };
 
+class Diff
+{
+	public:
+		Diff(const QFileInfo& left, const QFileInfo& right);
+		
+		void addLine(const QString& line);
+		
+		const QStringList& lines() const { return lines_; }
+		
+	private:
+		QFileInfo left_;
+		QFileInfo right_;
+		
+		QStringList lines_;
+};
+
 class Repository
 {
 	public:
 		
 	public:
 		bool commit(const QString& message) const;
+		std::vector<Diff> diff(const FileStatus& file, bool indexed) const;
 		void stage(const FileStatus& file) const;
 		void unstage(const FileStatus& file) const;
 		bool updateStatus();
@@ -65,6 +82,8 @@ class Repository
 		std::set<FileStatus> files_;
 		
 		static const QRegExp s_rxLineEnd;
+		static const QRegularExpression s_rxDiffFiles;
+		static const QRegularExpression s_rxDiffContext;
 };
 
 }

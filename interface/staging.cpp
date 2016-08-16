@@ -70,6 +70,10 @@ void UIStaging::onCommit(bool checked)
 	Backend& backend = Backend::instance();
 	const Repository& repo = backend.currentRepo();
 	repo.commit(message_->toPlainText());
+	
+	message_->setPlainText("");
+	//message_->setPlaceholderText("Enter a commit message here...");
+	
 	backend.onRefresh();
 }
 
@@ -108,7 +112,10 @@ void UIStaging::onIndexFile(const QModelIndex& index)
 
 void UIStaging::onShowWorkTreeFile(const QModelIndex& index)
 {
-	std::cout << "Showing " << index.row() << std::endl;
+	Backend& backend = Backend::instance();
+	const Repository& repo = backend.currentRepo();
+	auto diffs = repo.diff(workTreeModel_.getFile(index.row()), false);
+	onShowDiff(diffs);
 }
 
 ////////////////////////////////////////////////////////////////

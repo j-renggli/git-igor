@@ -10,6 +10,8 @@
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QTextEdit>
 
+#include <backend/repository.h>
+
 class QTreeView;
 
 namespace gitkit {
@@ -52,6 +54,9 @@ public:
 	
 public:
 	void initialise();
+	
+signals:
+	void onShowDiff(const std::vector<Diff>& diff);
 	
 private slots:
 	void onCommit(bool checked);

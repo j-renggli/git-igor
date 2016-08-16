@@ -15,12 +15,39 @@
 #include <interface/view.h>
 #include <interface/staging.h>
 
+#include <preferences/preferences.h>
+
 namespace gitkit {
 
 ////////////////////////////////////////////////////////////////
 
 MainWin::MainWin()
 {
+  setWindowTitle("Git-Kit");
+}
+
+////////////////////////////////////////////////////////////////
+
+MainWin::~MainWin()
+{
+	/*
+  for (auto it = mActions_.begin(); it != mActions_.end(); ++it)
+    delete it->second;
+
+  delete pHistory_;
+  delete pCommand_;
+  delete pOutput_;
+  delete pToolbar_;
+	*/
+}
+
+bool MainWin::initialise()
+{
+	if (!Backend::instance().initialise())
+		return false;
+		
+	Preferences::instance().generateCSS();
+		
   pMainView_ = new QTabWidget;
   setCentralWidget(pMainView_);
 
@@ -39,24 +66,9 @@ MainWin::MainWin()
   createActions();
   updateMenu();
   updateToolbar();
-
-  setWindowTitle("Git-Kit");
-	resize(QSize(800, 600));
-}
-
-////////////////////////////////////////////////////////////////
-
-MainWin::~MainWin()
-{
-	/*
-  for (auto it = mActions_.begin(); it != mActions_.end(); ++it)
-    delete it->second;
-
-  delete pHistory_;
-  delete pCommand_;
-  delete pOutput_;
-  delete pToolbar_;
-	*/
+	
+	connect(staging_, SIGNAL(onShowDiff(const std::vector<Diff>&)), view_, SLOT(onShowDiff(const std::vector<Diff>&)));
+	return true;
 }
 
 ////////////////////////////////////////////////////////////////

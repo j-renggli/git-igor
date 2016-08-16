@@ -16,6 +16,11 @@ public:
 	virtual ~Backend() {}
 	
 	const Repository& currentRepo() const { return repositories_.at(current_repo_); }
+	
+	const QDir& configFolder() const { return configPath_; }
+	const QDir& cssFolder() const { return cssPath_; }
+	
+	bool initialise();
 
 private:
 	Backend();
@@ -30,6 +35,9 @@ public slots:
 private:
 	/// Path to the git executable
 	QDir gitPath_;
+	
+	QDir configPath_;
+	QDir cssPath_;
 	
 	/// Known repositories
 	std::vector<Repository> repositories_;

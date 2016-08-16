@@ -1,13 +1,18 @@
 #include "repository.h"
 
+#include <cassert>
 #include <iostream>
 #include <stack>
 
 #include <QtCore/QProcess>
+#include <QtCore/QRegularExpression>
+#include <QtCore/QTextStream>
 
 namespace gitkit {
 	
 const QRegExp Repository::s_rxLineEnd("[\r\n]");
+const QRegularExpression Repository::s_rxDiffFiles("^diff --git a[/](.+) b[/](.+)$");
+const QRegularExpression Repository::s_rxDiffContext("^@@ [-](\\d+),(\\d+) [+](\\d+),(\\d+) @@ (.+)$");
 
 FileStatus::FileStatus(const QFileInfo& path, eStatus index, eStatus workTree, bool conflict)
 : path_(path)
@@ -22,6 +27,21 @@ bool FileStatus::operator<(const FileStatus& rhs) const
 	return path_.filePath() < rhs.path_.filePath();
 }
 
+////////////////////////////////////////////////////////////////
+
+Diff::Diff(const QFileInfo& left, const QFileInfo& right)
+: left_(left)
+, right_(right)
+{
+}
+
+void Diff::addLine(const QString& line)
+{
+	lines_ << line;
+}
+
+////////////////////////////////////////////////////////////////
+
 bool Repository::commit(const QString& message) const
 {
 	if (message.isEmpty())
@@ -31,6 +51,76 @@ bool Repository::commit(const QString& message) const
 	process.start("git", QStringList() << "commit" << "-m" << message);
 	process.waitForFinished();
 	return true;
+}
+
+std::vector<Diff> Repository::diff(const FileStatus& file, bool indexed) const
+{
+	std::vector<Diff> diffs;
+	
+	// New file ? Whole file added !
+	if (file.status(false) == FileStatus::ADDED)
+	{
+		QFile disk_file( file.path().filePath() );
+		if ( disk_file.open(QIODevice::ReadOnly) )
+		{
+			QTextStream in(&disk_file);
+			
+			diffs.push_back(Diff(QFileInfo(), file.path()));
+
+			while(!in.atEnd())
+			{
+				diffs.back().addLine("+" + in.readLine());
+			}
+
+			disk_file.close();
+		}
+		
+		return diffs;
+	}
+	
+	QProcess process;
+	QStringList args;
+	args << "diff";
+	if (indexed)
+		args << "--cached";
+		
+	args << file.path().filePath();
+	process.start("git", args);
+	process.waitForFinished();
+	QString output = process.readAllStandardOutput();
+	auto lines = output.split(s_rxLineEnd, QString::SkipEmptyParts);
+	
+	QFileInfo left, right;
+	QString context;
+	
+	for (auto line : lines)
+	{
+		//std::cout << line.toLatin1().data() << std::endl;
+		QRegularExpressionMatch match = s_rxDiffFiles.match(line);
+		if (match.hasMatch())
+		{
+			left = match.captured(1);
+			right = match.captured(2);
+			context = "";
+			diffs.push_back(Diff(left, right));
+			continue;
+		}
+		
+		match = s_rxDiffContext.match(line);
+		if (match.hasMatch())
+		{
+			context = match.captured(5);
+			continue;
+		}
+		
+		if (context.isEmpty())
+			continue;
+			
+		assert(!diffs.empty());
+		diffs.back().addLine(line);
+	}
+	
+	return diffs;
 }
 
 void Repository::stage(const FileStatus& file) const
@@ -57,6 +147,11 @@ void Repository::stage(const FileStatus& file) const
 
 void Repository::unstage(const FileStatus& file) const
 {
+	QProcess process;
+	QStringList args;
+	args << "reset" << file.path().filePath();
+	process.start("git", args);
+	process.waitForFinished();
 }
 
 bool Repository::updateStatus()

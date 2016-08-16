@@ -27,6 +27,8 @@ public:
   MainWin();
   ~MainWin();
 
+	bool initialise();
+	
 private:
   bool createActions();
 

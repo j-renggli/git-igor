@@ -43,6 +43,8 @@ backend/repository.cpp
 interface/backend.cpp
 interface/staging.cpp
 interface/view.cpp
+
+preferences/preferences.cpp
 )
 
 ######## LINKER ########
