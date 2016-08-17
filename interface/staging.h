@@ -63,8 +63,10 @@ private slots:
 	void onUpdate();
 	
 	// Work Tree connections
-	void onIndexFile(const QModelIndex& index);
+	void onStageFile(const QModelIndex& index);
 	void onShowWorkTreeFile(const QModelIndex& index);
+	void onUnstageFile(const QModelIndex& index);
+	void onShowIndexFile(const QModelIndex& index);
 	
 private:
 	StageModel indexModel_;

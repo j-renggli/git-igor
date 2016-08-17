@@ -60,7 +60,9 @@ void UIStaging::initialise()
 	connect(&backend, SIGNAL(onRepoUpdated()), this, SLOT(onUpdate()));
 	
 	connect(workTree_, SIGNAL(clicked(QModelIndex)), this, SLOT(onShowWorkTreeFile(QModelIndex)));
-	connect(workTree_, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onIndexFile(QModelIndex)));
+	connect(workTree_, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onStageFile(QModelIndex)));
+	connect(index_, SIGNAL(clicked(QModelIndex)), this, SLOT(onShowIndexFile(QModelIndex)));
+	connect(index_, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onUnstageFile(QModelIndex)));
 	
 	connect(commit_, SIGNAL(clicked(bool)), this, SLOT(onCommit(bool)));
 }
@@ -102,7 +104,7 @@ void UIStaging::onUpdate()
 	workTreeModel_.update();
 }
 
-void UIStaging::onIndexFile(const QModelIndex& index)
+void UIStaging::onStageFile(const QModelIndex& index)
 {
 	Backend& backend = Backend::instance();
 	const Repository& repo = backend.currentRepo();
@@ -115,6 +117,22 @@ void UIStaging::onShowWorkTreeFile(const QModelIndex& index)
 	Backend& backend = Backend::instance();
 	const Repository& repo = backend.currentRepo();
 	auto diffs = repo.diff(workTreeModel_.getFile(index.row()), false);
+	onShowDiff(diffs);
+}
+
+void UIStaging::onUnstageFile(const QModelIndex& index)
+{
+	Backend& backend = Backend::instance();
+	const Repository& repo = backend.currentRepo();
+	repo.unstage(indexModel_.getFile(index.row()));
+	backend.onRefresh();
+}
+
+void UIStaging::onShowIndexFile(const QModelIndex& index)
+{
+	Backend& backend = Backend::instance();
+	const Repository& repo = backend.currentRepo();
+	auto diffs = repo.diff(indexModel_.getFile(index.row()), true);
 	onShowDiff(diffs);
 }
 

@@ -1,5 +1,6 @@
 #include "view.h"
 
+#include <cassert>
 #include <memory>
 #include <iostream>
 
@@ -58,6 +59,13 @@ void UIView::onInjectBackend()
 
 void UIView::onShowDiff(const std::vector<Diff>& diff)
 {
+	if (diff.empty())
+	{
+		assert(false);
+		view_->setHtml("");
+		return;
+	}
+	
 	QString html = "<html><head><style>";
 	
 	const Backend& backend = Backend::instance();
@@ -77,25 +85,25 @@ void UIView::onShowDiff(const std::vector<Diff>& diff)
 	}
 		
 		
-	html += "</style></head><body>";
+	html += "</style></head><body><pre>";
 	QStringList lines = diff.at(0).lines();
 	for (int i = 0; i < lines.length(); ++i)
 	{
 		QString line = lines.at(i);
 		if (line.isEmpty())
 		{
-			html += "<div />\n";
+			html += "<code />\n";
 			continue;
 		}
 		
-		html += "<div";
+		html += "<code class=\"language-cpp";
 		if (line[0] == '+')
-			html += " class=\"addition\"";
+			html += " addition";
 		if (line[0] == '-')
-			html += " class=\"deletion\"";
-		html += ">" + line + "</div>\n";
+			html += " deletion";
+		html += "\">" + line.toHtmlEscaped() + "</code>\n";
 	}
-	html += "</body></html>";
+	html += "</pre></body></html>";
 	view_->setHtml(html);
 }
 
