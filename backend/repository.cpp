@@ -12,7 +12,7 @@ namespace gitkit {
 	
 const QRegExp Repository::s_rxLineEnd("[\r\n]");
 const QRegularExpression Repository::s_rxDiffFiles("^diff --git a[/](.+) b[/](.+)$");
-const QRegularExpression Repository::s_rxDiffContext("^@@ [-](\\d+),(\\d+) [+](\\d+),(\\d+) @@ (.+)$");
+const QRegularExpression Repository::s_rxDiffContext("^@@ [-](\\d+),(\\d+) [+](\\d+),(\\d+) @@(?: (.+))?$");
 
 FileStatus::FileStatus(const QFileInfo& path, eStatus index, eStatus workTree, bool conflict)
 : path_(path)
@@ -58,7 +58,8 @@ std::vector<Diff> Repository::diff(const FileStatus& file, bool indexed) const
 	std::vector<Diff> diffs;
 	
 	// New file ? Whole file added !
-	if (file.status(false) == FileStatus::ADDED)
+	FileStatus::eStatus workTreeStatus = file.status(false);
+	if (workTreeStatus == FileStatus::ADDED)
 	{
 		QFile disk_file( file.path().filePath() );
 		if ( disk_file.open(QIODevice::ReadOnly) )
@@ -77,6 +78,23 @@ std::vector<Diff> Repository::diff(const FileStatus& file, bool indexed) const
 		
 		return diffs;
 	}
+	else if (workTreeStatus == FileStatus::DELETED)
+	{
+		QProcess process;
+		QStringList args;
+		QString head("HEAD:");
+		head += file.path().filePath(); 
+		args << "show" << head;
+		
+		process.start("git", args);
+		process.waitForFinished();
+		QString output = process.readAllStandardOutput();
+		auto lines = output.split(s_rxLineEnd, QString::SkipEmptyParts);
+		diffs.push_back(Diff(file.path(), file.path()));
+		for (auto line : lines)
+			diffs.back().addLine("-" + line);
+		return diffs;
+	}
 	
 	QProcess process;
 	QStringList args;
@@ -92,6 +110,7 @@ std::vector<Diff> Repository::diff(const FileStatus& file, bool indexed) const
 	
 	QFileInfo left, right;
 	QString context;
+	bool hasContext = false;
 	
 	for (auto line : lines)
 	{
@@ -102,6 +121,7 @@ std::vector<Diff> Repository::diff(const FileStatus& file, bool indexed) const
 			left = match.captured(1);
 			right = match.captured(2);
 			context = "";
+			hasContext = false;
 			diffs.push_back(Diff(left, right));
 			continue;
 		}
@@ -110,10 +130,11 @@ std::vector<Diff> Repository::diff(const FileStatus& file, bool indexed) const
 		if (match.hasMatch())
 		{
 			context = match.captured(5);
+			hasContext = true;
 			continue;
 		}
 		
-		if (context.isEmpty())
+		if ( !hasContext )
 			continue;
 			
 		assert(!diffs.empty());

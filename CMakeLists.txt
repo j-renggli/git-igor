@@ -38,9 +38,9 @@ SET(GITKIT_SRC
 gitkit.cpp
 mainwin.cpp
 
+backend/backend.cpp
 backend/repository.cpp
 
-interface/backend.cpp
 interface/staging.cpp
 interface/view.cpp
 

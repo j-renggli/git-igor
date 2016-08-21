@@ -10,7 +10,7 @@
 #include <QtWebKitWidgets/QWebView>
 //#include <QtWebKitWidgets/QWebEngineView>
 
-#include "backend.h"
+#include <backend/backend.h>
 
 namespace gitkit {
 

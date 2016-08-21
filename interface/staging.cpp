@@ -4,8 +4,7 @@
 #include <QtWidgets/QTreeView>
 #include <QtWidgets/QVBoxLayout>
 
-#include "backend.h"
-
+#include <backend/backend.h>
 #include <backend/repository.h>
 
 #include <iostream>
@@ -188,6 +187,8 @@ QVariant StageModel::data(const QModelIndex &index, int role) const
 				return QVariant(QColor(0, 0, 255));
 			case FileStatus::DELETED:
 				return QVariant(QColor(255, 0, 0));
+			case FileStatus::RENAMED:
+				return QVariant(QColor(255, 0, 255));
 			default:
 				break;
 			}

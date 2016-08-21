@@ -2,7 +2,7 @@
 
 #include <QtCore/QTextStream>
 
-#include <interface/backend.h>
+#include <backend/backend.h>
 
 namespace gitkit {
 

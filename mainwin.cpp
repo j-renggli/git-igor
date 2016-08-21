@@ -11,7 +11,7 @@
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QVBoxLayout>
 
-#include <interface/backend.h>
+#include <backend/backend.h>
 #include <interface/view.h>
 #include <interface/staging.h>
 
