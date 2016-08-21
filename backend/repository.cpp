@@ -268,6 +268,12 @@ bool Repository::updateStatus()
 		for (auto line : lines)
 		{
 			QString name = line.mid(3);
+			QFileInfo path(name);
+			if (path.isDir())
+			{
+				subdirs.push(path);
+				continue;
+			}
 			files_.insert(FileStatus(name, FileStatus::NORMAL, FileStatus::ADDED, false));
 		}	}
 	

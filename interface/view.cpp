@@ -12,6 +12,8 @@
 
 #include <backend/backend.h>
 
+#include <gkassert.h>
+
 namespace gitkit {
 
 UIView::UIView()
@@ -61,7 +63,7 @@ void UIView::onShowDiff(const std::vector<Diff>& diff)
 {
 	if (diff.empty())
 	{
-		assert(false);
+		ASSERT(false);
 		view_->setHtml("");
 		return;
 	}
