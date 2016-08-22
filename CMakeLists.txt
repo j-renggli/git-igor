@@ -38,6 +38,7 @@ SET(GITKIT_SRC
 gitkit.cpp
 mainwin.cpp
 
+backend/actions.cpp
 backend/backend.cpp
 backend/repository.cpp
 

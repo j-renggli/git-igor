@@ -35,16 +35,8 @@ private:
   bool updateMenu();
   bool updateToolbar();
 
-//  bool eventFilter(QObject* obj, QEvent* event) override;
-
-//private slots:
-  //void onRunCommand();
-
 private:
   std::unique_ptr<QToolBar> pToolbar_;
-
-  /// Actions
-  std::map<int, std::shared_ptr<QAction> > mActions_;
 
   QTabWidget* pMainView_;
 

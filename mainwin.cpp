@@ -11,6 +11,7 @@
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QVBoxLayout>
 
+#include <backend/actions.h>
 #include <backend/backend.h>
 #include <interface/view.h>
 #include <interface/staging.h>
@@ -75,18 +76,20 @@ bool MainWin::initialise()
 
 bool MainWin::createActions()
 {
-	std::shared_ptr<QAction> quit(new QAction("&Quit", this));
-  quit->setShortcuts(QKeySequence::Quit);
-  quit->setStatusTip("Quit the application");
-  connect(quit.get(), SIGNAL(triggered()), this, SLOT(close()));
-  mActions_[0] = quit;
+	bool ok = Actions::initialise(this);
+	if (!ok)
+		return false;
+		
+	if (auto action = Actions::getAction(Actions::aFileQuit))
+	{
+		connect(action, SIGNAL(triggered()), this, SLOT(close()));
+	}
 	
 	Backend& backend = Backend::instance();
-	std::shared_ptr<QAction> refresh(new QAction("Refresh", this));
-	refresh->setShortcuts(QKeySequence::Refresh);
-	refresh->setStatusTip("Refresh the UI");
-	connect(refresh.get(), SIGNAL(triggered()), &backend, SLOT(onRefresh()));
-	mActions_[1] = refresh;
+	if (auto action = Actions::getAction(Actions::aFileRefresh))
+	{
+		connect(action, SIGNAL(triggered()), &backend, SLOT(onRefresh()));
+	}
 
   return true;
 }
@@ -110,17 +113,11 @@ bool MainWin::createActions()
 
 ////////////////////////////////////////////////////////////////
 
-//void MainWin::onRunCommand()
-//{
-//}
-
-////////////////////////////////////////////////////////////////
-
 bool MainWin::updateMenu()
 {
   auto file = menuBar()->addMenu("&File");
-  file->addAction(mActions_[0].get());
-	file->addAction(mActions_[1].get());
+  file->addAction(Actions::getAction(Actions::aFileQuit));
+	file->addAction(Actions::getAction(Actions::aFileRefresh));
 
   return true;
 }
@@ -130,8 +127,8 @@ bool MainWin::updateMenu()
 bool MainWin::updateToolbar()
 {
   pToolbar_.reset(addToolBar("File"));
-  pToolbar_->addAction(mActions_[0].get());
-	pToolbar_->addAction(mActions_[1].get());
+  pToolbar_->addAction(Actions::getAction(Actions::aFileQuit));
+	pToolbar_->addAction(Actions::getAction(Actions::aFileRefresh));
 
   return true;
 }
