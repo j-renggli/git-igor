@@ -13,6 +13,7 @@
 
 #include <backend/actions.h>
 #include <backend/backend.h>
+#include <backend/repositorymanager.h>
 #include <interface/view.h>
 #include <interface/staging.h>
 
@@ -45,6 +46,9 @@ MainWin::~MainWin()
 bool MainWin::initialise()
 {
 	if (!Backend::instance().initialise())
+		return false;
+		
+	if (!RepositoryManager::instance().initialise())
 		return false;
 		
 	Preferences::instance().generateCSS();

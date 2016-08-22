@@ -53,6 +53,7 @@ class Diff
 class Repository
 {
 	public:
+		Repository(const QString& name, const QDir& root);
 		
 	public:
 		bool commit(const QString& message) const;
@@ -69,15 +70,15 @@ class Repository
 		const std::set<FileStatus>& inStage() const { return files_; }
 		
 	private:
+		Repository(const Repository& copy);
+		
+	private:
 		QDir root_;
 		QString name_;
 		
 		QString lastStatus_;
 		
 		QString currentBranch_;
-		/*
-		QString currentRemote_;
-		*/
 		
 		std::set<FileStatus> files_;
 		

@@ -3,7 +3,7 @@
 #include <cassert>
 #include <iostream>
 
-#include <backend/repository.h>
+#include <backend/repositorymanager.h>
 
 namespace gitkit {
 
@@ -15,9 +15,12 @@ Backend& Backend::instance()
 }
 
 Backend::Backend()
-: current_repo_(0)
 {
-	repositories_.push_back(Repository());
+}
+
+const Repository& Backend::currentRepo() const
+{
+	return RepositoryManager::instance().active();
 }
 
 bool Backend::initialise()
@@ -40,8 +43,14 @@ bool Backend::initialise()
 	
 void Backend::onRefresh()
 {
-	if (repositories_.at(current_repo_).updateStatus())
+	auto& repos = RepositoryManager::instance();
+	if (repos.empty())
+		return;
+		
+	if (repos.active().updateStatus())
+	{
 		emit onRepoUpdated();
+	}
 }
 
 void Backend::onFetch()

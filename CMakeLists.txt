@@ -41,6 +41,7 @@ mainwin.cpp
 backend/actions.cpp
 backend/backend.cpp
 backend/repository.cpp
+backend/repositorymanager.cpp
 
 interface/staging.cpp
 interface/view.cpp

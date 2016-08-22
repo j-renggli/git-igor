@@ -1,12 +1,13 @@
 #include "repository.h"
 
-#include <cassert>
 #include <iostream>
 #include <stack>
 
 #include <QtCore/QProcess>
 #include <QtCore/QRegularExpression>
 #include <QtCore/QTextStream>
+
+#include <gkassert.h>
 
 namespace gitkit {
 	
@@ -41,6 +42,17 @@ void Diff::addLine(const QString& line)
 }
 
 ////////////////////////////////////////////////////////////////
+
+Repository::Repository(const QString& name, const QDir& root)
+: root_(root)
+, name_(name)
+{
+}
+
+Repository::Repository(const Repository& copy)
+{
+	ASSERT(false);
+}
 
 bool Repository::commit(const QString& message) const
 {
@@ -137,7 +149,7 @@ std::vector<Diff> Repository::diff(const FileStatus& file, bool indexed) const
 		if ( !hasContext )
 			continue;
 			
-		assert(!diffs.empty());
+		ASSERT(!diffs.empty());
 		diffs.back().addLine(line);
 	}
 	
@@ -177,6 +189,7 @@ void Repository::unstage(const FileStatus& file) const
 
 bool Repository::updateStatus()
 {
+	//std::cout << "Updating status of " << name_.toLatin1().data() << std::endl;
 	QProcess process;
 	process.start("git", QStringList() << "status" << "--porcelain" << "-b");
 	process.waitForFinished();

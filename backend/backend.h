@@ -15,7 +15,7 @@ public:
 	static Backend& instance();
 	virtual ~Backend() {}
 	
-	const Repository& currentRepo() const { return repositories_.at(current_repo_); }
+	const Repository& currentRepo() const;// { return repositories_.at(current_repo_); }
 	
 	const QDir& configFolder() const { return configPath_; }
 	const QDir& cssFolder() const { return cssPath_; }
@@ -40,8 +40,8 @@ private:
 	QDir cssPath_;
 	
 	/// Known repositories
-	std::vector<Repository> repositories_;
-	size_t current_repo_;
+	//std::vector<Repository> repositories_;
+	//size_t current_repo_;
 	
 private:
 	static Backend s_backend;
