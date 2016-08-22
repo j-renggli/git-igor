@@ -118,6 +118,11 @@ bool MainWin::updateMenu()
   auto file = menuBar()->addMenu("&File");
   file->addAction(Actions::getAction(Actions::aFileQuit));
 	file->addAction(Actions::getAction(Actions::aFileRefresh));
+	
+  auto remote = menuBar()->addMenu("&Remote");
+  remote->addAction(Actions::getAction(Actions::aGitFetch));
+  remote->addAction(Actions::getAction(Actions::aGitPull));
+  remote->addAction(Actions::getAction(Actions::aGitPush));
 
   return true;
 }
@@ -126,9 +131,17 @@ bool MainWin::updateMenu()
 
 bool MainWin::updateToolbar()
 {
-  pToolbar_.reset(addToolBar("File"));
+  pToolbar_ = addToolBar("File");
+	pToolbar_->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+	pToolbar_->setIconSize(QSize(32, 32));
+	
   pToolbar_->addAction(Actions::getAction(Actions::aFileQuit));
 	pToolbar_->addAction(Actions::getAction(Actions::aFileRefresh));
+	
+	pToolbar_->addSeparator();
+  pToolbar_->addAction(Actions::getAction(Actions::aGitFetch));
+  pToolbar_->addAction(Actions::getAction(Actions::aGitPull));
+  pToolbar_->addAction(Actions::getAction(Actions::aGitPush));
 
   return true;
 }

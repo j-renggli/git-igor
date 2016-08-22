@@ -1,7 +1,5 @@
 #pragma once
 
-#include <memory>
-
 #include <QtWidgets/QAction>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QTableView>
@@ -36,7 +34,7 @@ private:
   bool updateToolbar();
 
 private:
-  std::unique_ptr<QToolBar> pToolbar_;
+  QToolBar* pToolbar_;
 
   QTabWidget* pMainView_;
 

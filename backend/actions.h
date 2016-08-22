@@ -24,6 +24,8 @@ class Actions
 		static bool initialise(QObject* parent);
 		
 	private:
+		//static QIcon loadSVG(const QString& path);
+		
 		static std::map<eAction, QAction*> actions_;
 };
 

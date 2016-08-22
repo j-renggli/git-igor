@@ -1,3 +1,7 @@
 build/
+data/octicons**
 
 .codelite/
+
+**gmon.out
+
