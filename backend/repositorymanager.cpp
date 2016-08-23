@@ -26,6 +26,7 @@ RepositoryManager& RepositoryManager::instance()
 bool RepositoryManager::initialise()
 {
 	repositories_.push_back(std::unique_ptr<Repository>(new Repository(QString("DogFood"), QDir("."))));
+	repositories_.back()->initialise();
 	active_ = 0;
 	
 	return true;

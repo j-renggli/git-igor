@@ -18,7 +18,9 @@ int main(int argc, char* argv[])
   gitkit::MainWin window;
 	window.resize(800, 600);
   //window.setMinimumSize(400, 300);
-	window.initialise();
+	if (!window.initialise())
+		return 1;
+		
   window.show();
   return app.exec();
 }

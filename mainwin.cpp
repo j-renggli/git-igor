@@ -45,10 +45,11 @@ MainWin::~MainWin()
 
 bool MainWin::initialise()
 {
-	if (!Backend::instance().initialise())
+	bool ok = Actions::initialise(this);
+	if (!ok)
 		return false;
 		
-	if (!RepositoryManager::instance().initialise())
+	if (!Backend::instance().initialise())
 		return false;
 		
 	Preferences::instance().generateCSS();
@@ -80,20 +81,16 @@ bool MainWin::initialise()
 
 bool MainWin::createActions()
 {
-	bool ok = Actions::initialise(this);
-	if (!ok)
-		return false;
-		
 	if (auto action = Actions::getAction(Actions::aFileQuit))
 	{
 		connect(action, SIGNAL(triggered()), this, SLOT(close()));
 	}
-	
+	/*
 	Backend& backend = Backend::instance();
 	if (auto action = Actions::getAction(Actions::aFileRefresh))
 	{
 		connect(action, SIGNAL(triggered()), &backend, SLOT(onRefresh()));
-	}
+	}*/
 
   return true;
 }

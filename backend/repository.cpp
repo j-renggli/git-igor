@@ -156,6 +156,122 @@ std::vector<Diff> Repository::diff(const FileStatus& file, bool indexed) const
 	return diffs;
 }
 
+bool Repository::fetch(QString remote)
+{
+	if (remote.isEmpty())
+	{
+		if (tracking_.first.isEmpty())
+		{
+			// Nothing can be done !
+			return false;
+		}
+		
+		remote = tracking_.first;
+	}
+	
+	QProcess process;
+	process.start("git", QStringList() << "fetch" << remote);
+	process.waitForFinished();
+	std::cout << "Fetch: [" << QString(process.readAllStandardOutput()).toLatin1().data() << "]" << std::endl;
+	return true;
+}
+
+bool Repository::initialise()
+{
+	// Current branch
+	{
+		QProcess process;
+		process.start("git", QStringList() << "rev-parse" << "--abbrev-ref" << "HEAD");
+		process.waitForFinished();
+		QString output = process.readAllStandardOutput();
+		currentBranch_ = output.split(s_rxLineEnd, QString::SkipEmptyParts)[0];
+		if (currentBranch_.isEmpty())
+			return false;
+	}
+	
+	{
+		QProcess process;
+		process.start("git", QStringList() << "rev-parse" << "--abbrev-ref" << (currentBranch_ + "@{upstream}"));
+		process.waitForFinished();
+		QString output = process.readAllStandardOutput();
+		QString full = output.split(s_rxLineEnd, QString::SkipEmptyParts)[0];
+		if (!full.isEmpty())
+		{
+			auto first = full.indexOf("/");
+			tracking_.first = full.left(first);
+			tracking_.second = full.mid(first+1);
+		}
+	}
+	
+	return true;
+}
+
+bool Repository::merge(QString branch)
+{
+	if (branch.isEmpty())
+		return false;
+		
+	QProcess process;
+	process.start("git", QStringList() << "merge" << branch);
+	process.waitForFinished();
+	std::cout << "Merge: [" << QString(process.readAllStandardOutput()).toLatin1().data() << "]" << std::endl;
+	return true;
+}
+
+bool Repository::pull(QString remote, QString branch)
+{
+	if (!fetch(remote))
+		return false;
+		
+	if (remote.isEmpty())
+		remote = tracking_.first;
+	ASSERT(!remote.isEmpty());
+	
+	if (branch.isEmpty())
+	{
+		if (tracking_.second.isEmpty())
+		{
+			// Nothing can be done !
+			return false;
+		}
+		
+		branch = tracking_.second;
+	}
+	
+	return merge(remote + "/" + branch);
+}
+
+bool Repository::push(QString remote, QString branch)
+{
+	if (remote.isEmpty())
+	{
+		if (tracking_.first.isEmpty())
+		{
+			// Nothing can be done !
+			return false;
+		}
+		
+		remote = tracking_.first;
+	}
+	
+	if (branch.isEmpty())
+	{
+		if (tracking_.second.isEmpty())
+		{
+			// Nothing can be done !
+			return false;
+		}
+		
+		branch = tracking_.second;
+	}
+		
+	QProcess process;
+	process.start("git", QStringList() << "push" << remote << branch);
+	process.waitForFinished();
+	std::cout << "Push: [" << QString(process.readAllStandardOutput()).toLatin1().data() << "]" << std::endl;
+	return true;
+}
+
 void Repository::stage(const FileStatus& file) const
 {
 	QProcess process;

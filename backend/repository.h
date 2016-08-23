@@ -56,16 +56,18 @@ class Repository
 		Repository(const QString& name, const QDir& root);
 		
 	public:
+		bool initialise();
+		
 		bool commit(const QString& message) const;
 		std::vector<Diff> diff(const FileStatus& file, bool indexed) const;
 		void stage(const FileStatus& file) const;
 		void unstage(const FileStatus& file) const;
 		bool updateStatus();
 		
-		void fetch(const QString& remote = "");
-		void pull(const QString& remote = "", const QString& branch = "");
-		void merge(const QString& branch);
-		void push(const QString& remote = "", const QString& branch = "");
+		bool fetch(QString remote = "");
+		bool pull(QString remote = "", QString branch = "");
+		bool merge(QString branch);
+		bool push(QString remote = "", QString branch = "");
 		
 		const std::set<FileStatus>& inStage() const { return files_; }
 		
@@ -81,6 +83,10 @@ class Repository
 		QString currentBranch_;
 		
 		std::set<FileStatus> files_;
+		
+		std::vector<QString> remotes_;
+		std::vector<QString> branches_;
+		std::pair<QString, QString> tracking_;
 		
 		static const QRegExp s_rxLineEnd;
 		static const QRegularExpression s_rxDiffFiles;
