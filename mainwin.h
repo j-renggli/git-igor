@@ -14,6 +14,7 @@
 
 namespace gitkit {
 
+class UIProgress;
 class UIStaging;
 class UIView;
 
@@ -38,6 +39,7 @@ private:
 
   QTabWidget* pMainView_;
 
+	UIProgress* progress_;
 	UIView* view_;
 	UIStaging* staging_;
 };

@@ -4,6 +4,8 @@
 
 #include <QtCore/QDir>
 
+#include "runner.h"
+
 namespace gitkit {
 	
 class FileStatus
@@ -64,9 +66,9 @@ class Repository
 		void unstage(const FileStatus& file) const;
 		bool updateStatus();
 		
-		bool fetch(QString remote = "");
-		bool pull(QString remote = "", QString branch = "");
-		bool merge(QString branch);
+		Process fetch(QString remote = "");
+		Process pull(QString remote = "", QString branch = "");
+		Process merge(QString branch);
 		bool push(QString remote = "", QString branch = "");
 		
 		const std::set<FileStatus>& inStage() const { return files_; }

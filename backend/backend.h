@@ -3,7 +3,8 @@
 #include <QtCore/QDir>
 #include <QtCore/QObject>
 
-#include <backend/repository.h>
+#include "repository.h"
+#include "runner.h"
 
 namespace gitkit {
 
@@ -16,6 +17,7 @@ public:
 	virtual ~Backend() {}
 	
 	const Repository& currentRepo() const;// { return repositories_.at(current_repo_); }
+	const ActionRunner& taskRunner() const { return runner_; }
 	
 	const QDir& configFolder() const { return configPath_; }
 	const QDir& cssFolder() const { return cssPath_; }
@@ -34,6 +36,10 @@ public slots:
 	Q_INVOKABLE void onPull();
 	Q_INVOKABLE void onPush();
 	
+	void workStarted(const QString& command);
+	void workEnded();
+	void workOutput(const QString& output);
+	
 private:
 	/// Path to the git executable
 	QDir gitPath_;
@@ -44,6 +50,7 @@ private:
 	/// Known repositories
 	//std::vector<Repository> repositories_;
 	//size_t current_repo_;
+	ActionRunner runner_;
 	
 private:
 	static Backend s_backend;

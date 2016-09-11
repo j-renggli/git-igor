@@ -55,10 +55,18 @@ bool Backend::initialise()
 			connect(action, SIGNAL(triggered()), this, SLOT(onPull()));
 		if (auto action = Actions::getAction(Actions::aGitPush))
 			connect(action, SIGNAL(triggered()), this, SLOT(onPush()));
+			
+		connect(&runner_, &ActionRunner::notifyStartWork, this, &Backend::workStarted);
+		connect(&runner_, &ActionRunner::notifyStopWork, this, &Backend::workEnded);
+		connect(&runner_, &ActionRunner::notifyOutput, this, &Backend::workOutput);
 	}
 	
 	return ok;
 }
+
+void Backend::workStarted(const QString& command) { std::cout << command.toLatin1().data() << std::endl; }
+void Backend::workEnded() { std::cout << "Work ended" << std::endl; }
+void Backend::workOutput(const QString& output) { std::cout << output.toLatin1().data() << std::endl; }
 	
 void Backend::onRefresh()
 {
@@ -78,10 +86,10 @@ void Backend::onFetch()
 	if (repos.empty())
 		return;
 		
-	if (repos.active().fetch())
-	{
-		//emit onRepoUpdated();
-	}
+	Process proc = repos.active().fetch();
+	std::cout << proc.empty() << std::endl;
+	if (!proc.empty())
+		runner_.enqueue(proc);
 }
 
 void Backend::onPull()
@@ -90,10 +98,10 @@ void Backend::onPull()
 	if (repos.empty())
 		return;
 		
-	if (repos.active().pull())
-	{
-		//emit onRepoUpdated();
-	}
+	Process proc = repos.active().pull();
+	std::cout << proc.empty() << std::endl;
+	if (!proc.empty())
+		runner_.enqueue(proc);
 }
 
 void Backend::onPush()

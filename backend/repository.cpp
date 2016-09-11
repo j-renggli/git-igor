@@ -9,6 +9,8 @@
 
 #include <gkassert.h>
 
+#include "runaction.h"
+
 namespace gitkit {
 	
 const QRegExp Repository::s_rxLineEnd("[\r\n]");
@@ -156,24 +158,21 @@ std::vector<Diff> Repository::diff(const FileStatus& file, bool indexed) const
 	return diffs;
 }
 
-bool Repository::fetch(QString remote)
+Process Repository::fetch(QString remote)
 {
 	if (remote.isEmpty())
 	{
 		if (tracking_.first.isEmpty())
 		{
 			// Nothing can be done !
-			return false;
+			return Process();
 		}
 		
 		remote = tracking_.first;
 	}
 	
-	QProcess process;
-	process.start("git", QStringList() << "fetch" << remote);
-	process.waitForFinished();
-	std::cout << "Fetch: [" << QString(process.readAllStandardOutput()).toLatin1().data() << "]" << std::endl;
-	return true;
+	auto fetch = std::make_shared<GitFetch>(remote, root_);
+	return Process(fetch, true);
 }
 
 bool Repository::initialise()
@@ -206,20 +205,38 @@ bool Repository::initialise()
 	return true;
 }
 
-bool Repository::merge(QString branch)
+Process Repository::merge(QString branch)
 {
 	if (branch.isEmpty())
-		return false;
+		return Process();
 		
-	QProcess process;
-	process.start("git", QStringList() << "merge" << branch);
-	process.waitForFinished();
-	std::cout << "Merge: [" << QString(process.readAllStandardOutput()).toLatin1().data() << "]" << std::endl;
-	return true;
+	auto merge = std::make_shared<GitMerge>(branch, root_);
+	return Process(merge, true);
 }
 
-bool Repository::pull(QString remote, QString branch)
+Process Repository::pull(QString remote, QString branch)
 {
+	if (remote.isEmpty())
+	{
+		if (tracking_.first.isEmpty())
+		{
+			// Nothing can be done !
+			return Process();
+		}
+		
+		remote = tracking_.first;
+	}
+	
+	if (branch.isEmpty())
+		return Process();
+		
+	auto fetch = std::make_shared<GitFetch>(remote, root_);
+	auto merge = std::make_shared<GitMerge>(branch, root_);
+	std::vector<std::shared_ptr<ICommand> > commands;
+	commands.push_back(fetch);
+	commands.push_back(merge);
+	return Process(commands, true);
+/*
 	if (!fetch(remote))
 		return false;
 		
@@ -238,7 +255,7 @@ bool Repository::pull(QString remote, QString branch)
 		branch = tracking_.second;
 	}
 	
-	return merge(remote + "/" + branch);
+	return merge(remote + "/" + branch);*/
 }
 
 bool Repository::push(QString remote, QString branch)

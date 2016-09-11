@@ -14,6 +14,7 @@
 #include <backend/actions.h>
 #include <backend/backend.h>
 #include <backend/repositorymanager.h>
+#include <interface/progress.h>
 #include <interface/view.h>
 #include <interface/staging.h>
 
@@ -62,6 +63,9 @@ bool MainWin::initialise()
 	
 	view_ = new UIView;
 	view_->doConnect();
+	
+	progress_ = new UIProgress;
+	progress_->initialise();
 	
 	staging_ = new UIStaging;
 	staging_->initialise();

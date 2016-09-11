@@ -42,7 +42,10 @@ backend/actions.cpp
 backend/backend.cpp
 backend/repository.cpp
 backend/repositorymanager.cpp
+backend/runaction.cpp
+backend/runner.cpp
 
+interface/progress.cpp
 interface/staging.cpp
 interface/view.cpp
 
