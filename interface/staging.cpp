@@ -179,7 +179,7 @@ QVariant StageModel::data(const QModelIndex &index, int role) const
 			switch (files_.at(row).status(index_))
 			{
 			case FileStatus::NORMAL:
-				//assert(false);
+				//ASSERT(false);
 				break;
 			case FileStatus::ADDED:
 				return QVariant(QColor(0, 255, 0));
@@ -208,7 +208,10 @@ Qt::ItemFlags StageModel::flags(const QModelIndex &index) const
 
 QVariant StageModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-	if (orientation == Qt::Horizontal)
+	if (role != Qt::DisplayRole)
+		return QVariant();
+		
+	if (orientation != Qt::Horizontal)
 		return QVariant();
 		
 	size_t row = section;

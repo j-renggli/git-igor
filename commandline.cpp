@@ -1,7 +1,5 @@
 #include "commandline.h"
 
-#include "cccassert.h"
-
 #include <QtWidgets/QCompleter>
 #include <QtGui/QKeyEvent>
 #include <QtCore/QStringListModel>
@@ -86,7 +84,7 @@ bool CommandLine::getCommandArgs(std::vector<std::string>& tokens) const
     return false;
 
   auto it = fullpaths_.find(tokens[0]);
-  //assert(it != fullpaths_.end());
+  //ASSERT(it != fullpaths_.end());
   if (it != fullpaths_.end())
   {
     //tokens[0] = it->second;

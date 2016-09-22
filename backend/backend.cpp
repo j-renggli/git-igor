@@ -29,11 +29,7 @@ const Repository& Backend::currentRepo() const
 
 bool Backend::initialise()
 {
-	if (!RepositoryManager::instance().initialise())
-		return false;
-		
 	const QString root(".config/gitkit");
-	const QString css("css");
 	
 	configPath_ = QDir::home();
 	ASSERT(configPath_.exists());
@@ -41,6 +37,13 @@ bool Backend::initialise()
 	bool ok = configPath_.cd(root);
 	ASSERT(ok);
 	
+	// Saved data
+	QFileInfo repositories(configPath_, "repositories.json");
+	if (!RepositoryManager::instance().initialise(repositories))
+		return false;
+		
+	// HTML css
+	const QString css("css");
 	configPath_.mkpath(css);
 	cssPath_ = configPath_;
 	ok = ok && cssPath_.cd(css);

@@ -71,6 +71,9 @@ class Repository
 		Process merge(QString branch);
 		bool push(QString remote = "", QString branch = "");
 		
+		const QString& name() const { return name_; }
+		const QDir root() const { return root_; }
+		const std::vector<QString>& remotes() const { return remotes_; }
 		const std::set<FileStatus>& inStage() const { return files_; }
 		
 	private:

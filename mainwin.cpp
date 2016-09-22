@@ -11,12 +11,16 @@
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QVBoxLayout>
 
+#include <gkassert.h>
+
 #include <backend/actions.h>
 #include <backend/backend.h>
 #include <backend/repositorymanager.h>
+
 #include <interface/progress.h>
-#include <interface/view.h>
+#include <interface/repositories.h>
 #include <interface/staging.h>
+#include <interface/view.h>
 
 #include <preferences/preferences.h>
 
@@ -33,16 +37,9 @@ MainWin::MainWin()
 
 MainWin::~MainWin()
 {
-	/*
-  for (auto it = mActions_.begin(); it != mActions_.end(); ++it)
-    delete it->second;
-
-  delete pHistory_;
-  delete pCommand_;
-  delete pOutput_;
-  delete pToolbar_;
-	*/
 }
+
+////////////////////////////////////////////////////////////////
 
 bool MainWin::initialise()
 {
@@ -50,7 +47,8 @@ bool MainWin::initialise()
 	if (!ok)
 		return false;
 		
-	if (!Backend::instance().initialise())
+	auto& backend = Backend::instance();
+	if (!backend.initialise())
 		return false;
 		
 	Preferences::instance().generateCSS();
@@ -66,6 +64,10 @@ bool MainWin::initialise()
 	
 	progress_ = new UIProgress;
 	progress_->initialise();
+	
+	repositories_ = new UIRepositories;
+	repositories_->initialise();
+	repositories_->onShow(true);
 	
 	staging_ = new UIStaging;
 	staging_->initialise();

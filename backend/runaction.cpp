@@ -2,7 +2,6 @@
 
 #include <QtCore/QProcess>
 
-#include <cassert>
 #include <iostream>
 
 namespace gitkit {

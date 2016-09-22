@@ -1,6 +1,5 @@
 #include "view.h"
 
-#include <cassert>
 #include <memory>
 #include <iostream>
 

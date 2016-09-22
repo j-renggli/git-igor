@@ -15,6 +15,7 @@
 namespace gitkit {
 
 class UIProgress;
+class UIRepositories;
 class UIStaging;
 class UIView;
 
@@ -42,6 +43,7 @@ private:
 	UIProgress* progress_;
 	UIView* view_;
 	UIStaging* staging_;
+	UIRepositories* repositories_;
 };
 
 }

@@ -46,6 +46,7 @@ backend/runaction.cpp
 backend/runner.cpp
 
 interface/progress.cpp
+interface/repositories.cpp
 interface/staging.cpp
 interface/view.cpp
 

@@ -2,8 +2,9 @@
 
 #include <QtCore/QProcess>
 
-#include <cassert>
 #include <iostream>
+
+#include <gkassert.h>
 
 namespace gitkit {
 
@@ -48,7 +49,7 @@ ActionWorker::ActionWorker()
 
 void ActionWorker::enqueue(const Process& process)
 {
-	assert(!process.empty());
+	ASSERT(!process.empty());
 		
 	std::lock_guard<std::mutex> lock(s_mutex);
 	
