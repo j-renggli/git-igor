@@ -12,6 +12,7 @@ class QTreeView;
 namespace gitkit {
 	
 class RepositoryManager;
+class UIRepoAdd;
 	
 class RepositoriesModel : public QAbstractItemModel
 {
@@ -61,10 +62,11 @@ public:
 	void initialise();
 	
 public slots:
-	void onShow(bool show);
+	void onShow();
 	void onSelecting(const QModelIndex& index);
 	void onCancel();
 	void onCommit();
+	void onAddRepo();
 	
 private:
 	size_t selected_;
@@ -82,6 +84,9 @@ private:
 	QTreeView* remotes_;
 	QPushButton* cancel_;
 	QPushButton* commit_;
+	
+	UIRepoAdd* repoAddUI_;
+	UIRepoAdd* remoteAddUI_;
 };
 
 }

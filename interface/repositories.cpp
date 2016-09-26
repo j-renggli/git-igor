@@ -9,13 +9,14 @@
 #include <gkassert.h>
 #include <backend/repositorymanager.h>
 
-#include <iostream>
+#include "repo_add.h"
 
 namespace gitkit {
 	
 UIRepositories::UIRepositories()
 : selected_(-1)
 {
+	setModal(true);
 }
 
 UIRepositories::~UIRepositories()
@@ -78,18 +79,21 @@ void UIRepositories::initialise()
 	
 	setLayout(layout);
 	setWindowTitle("Repositories");
-	/*
-	Backend& backend = Backend::instance();
-	const ActionRunner& runner = backend.taskRunner();
-	connect(&runner, &ActionRunner::notifyShowDialog, this, &UIProgress::onShow);
-	connect(&runner, &ActionRunner::notifyStartWork, this, &UIProgress::onSetCommand);
-	connect(&runner, &ActionRunner::notifyOutput, this, &UIProgress::onOutput);
-	connect(&runner, &ActionRunner::notifyStopWork, this, &UIProgress::onWorkDone);
-	*/
 	
 	connect(repositories_, &QTreeView::clicked, this, &UIRepositories::onSelecting);
 	connect(cancel_, &QPushButton::clicked, this, &UIRepositories::onCancel);
 	connect(commit_, &QPushButton::clicked, this, &UIRepositories::onCommit);
+	connect(repoAdd_, &QPushButton::clicked, this, &UIRepositories::onAddRepo);
+	
+	repoAddUI_ = new UIRepoAdd();
+	repoAddUI_->initialise(true);
+	remoteAddUI_ = new UIRepoAdd();
+	remoteAddUI_->initialise(false);
+}
+
+void UIRepositories::onAddRepo()
+{
+	repoAddUI_->show();
 }
 
 void UIRepositories::onCancel()
@@ -130,12 +134,9 @@ void UIRepositories::onSelecting(const QModelIndex& index)
 	}
 }
 
-void UIRepositories::onShow(bool do_show)
+void UIRepositories::onShow()
 {
-	if (do_show)
-		show();
-	else
-		hide();
+	show();
 }
 
 ////////////////////////////////////////////////////////////////
