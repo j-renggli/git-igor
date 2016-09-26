@@ -22,7 +22,7 @@ public:
 	const QDir& configFolder() const { return configPath_; }
 	const QDir& cssFolder() const { return cssPath_; }
 	
-	bool initialise();
+	bool initialise(QObject* mainWin);
 
 private:
 	Backend();
@@ -44,6 +44,7 @@ private:
 	/// Path to the git executable
 	QDir gitPath_;
 	
+	const QDir resourcesPath_;
 	QDir configPath_;
 	QDir cssPath_;
 	

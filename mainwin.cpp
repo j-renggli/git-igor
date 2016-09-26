@@ -43,12 +43,8 @@ MainWin::~MainWin()
 
 bool MainWin::initialise()
 {
-	bool ok = Actions::initialise(this);
-	if (!ok)
-		return false;
-		
 	auto& backend = Backend::instance();
-	if (!backend.initialise())
+	if (!backend.initialise(this))
 		return false;
 		
 	Preferences::instance().generateCSS();
@@ -67,7 +63,6 @@ bool MainWin::initialise()
 	
 	repositories_ = new UIRepositories;
 	repositories_->initialise();
-	repositories_->onShow(true);
 	
 	staging_ = new UIStaging;
 	staging_->initialise();
@@ -80,6 +75,7 @@ bool MainWin::initialise()
   updateToolbar();
 	
 	connect(staging_, SIGNAL(onShowDiff(const std::vector<Diff>&)), view_, SLOT(onShowDiff(const std::vector<Diff>&)));
+	
 	return true;
 }
 
@@ -87,9 +83,14 @@ bool MainWin::initialise()
 
 bool MainWin::createActions()
 {
-	if (auto action = Actions::getAction(Actions::aFileQuit))
 	{
-		connect(action, SIGNAL(triggered()), this, SLOT(close()));
+		auto action = Actions::getAction(Actions::aFileQuit);
+		connect(action, &QAction::triggered, this, &MainWin::close);
+	}
+	
+	{
+		auto action = Actions::getAction(Actions::aRepoEdit);
+		connect(action, &QAction::triggered, repositories_, &UIRepositories::onShow);
 	}
 	/*
 	Backend& backend = Backend::instance();
@@ -103,33 +104,25 @@ bool MainWin::createActions()
 
 ////////////////////////////////////////////////////////////////
 
-//bool MainWin::eventFilter(QObject* obj, QEvent* event)
-//{
-//  if (obj == pCommand_ && event->type() == QEvent::KeyPress)
-//  {
-//    QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
-//    if (keyEvent->key() == Qt::Key_Tab)
-//    {
-//      pCommand_->tryAutocomplete();
-//      return true;
-//    }
-//  }
-//
-//  return QMainWindow::eventFilter(obj, event);
-//}
-
-////////////////////////////////////////////////////////////////
-
 bool MainWin::updateMenu()
 {
-  auto file = menuBar()->addMenu("&File");
-  file->addAction(Actions::getAction(Actions::aFileQuit));
-	file->addAction(Actions::getAction(Actions::aFileRefresh));
+	{
+		auto file = menuBar()->addMenu("&File");
+		file->addAction(Actions::getAction(Actions::aFileQuit));
+		file->addAction(Actions::getAction(Actions::aFileRefresh));
+	}
 	
-  auto remote = menuBar()->addMenu("&Remote");
-  remote->addAction(Actions::getAction(Actions::aGitFetch));
-  remote->addAction(Actions::getAction(Actions::aGitPull));
-  remote->addAction(Actions::getAction(Actions::aGitPush));
+	{
+		auto remote = menuBar()->addMenu("&Remote");
+		remote->addAction(Actions::getAction(Actions::aGitFetch));
+		remote->addAction(Actions::getAction(Actions::aGitPull));
+		remote->addAction(Actions::getAction(Actions::aGitPush));
+	}
+	
+	{
+		auto repos = menuBar()->addMenu("&Repositories");
+		repos->addAction(Actions::getAction(Actions::aRepoEdit));
+	}
 
   return true;
 }

@@ -3,6 +3,7 @@
 #include <map>
 
 class QAction;
+class QDir;
 class QObject;
 
 namespace gitkit {
@@ -17,11 +18,12 @@ class Actions
 			aGitFetch,
 			aGitPull,
 			aGitPush,
+			aRepoEdit
 		};
 		
 		static QAction* getAction(eAction id);
 		
-		static bool initialise(QObject* parent);
+		static bool initialise(QObject* parent, const QDir& dataPath);
 		
 	private:
 		//static QIcon loadSVG(const QString& path);

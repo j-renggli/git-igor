@@ -2,6 +2,7 @@
 
 #include <gkassert.h>
 
+#include <QtCore/QDir>
 #include <QtWidgets/QAction>
 
 namespace gitkit {
@@ -20,25 +21,30 @@ QAction* Actions::getAction(eAction id)
 	return it->second;
 }
 
-bool Actions::initialise(QObject* parent)
+bool Actions::initialise(QObject* parent, const QDir& dataPath)
 {
 	ASSERT(parent);
 	if (!parent)
 		return false;
 		
-	ASSERT(actions_.empty())
+	ASSERT(actions_.empty());
 	if (!actions_.empty())
 		return false;
 	
+	QDir icons = dataPath;
+	ASSERT(icons.exists("res/icons"));
+	if (!icons.cd("res/icons"))
+		return false;
+	
 	{
-		auto action = new QAction(QIcon("data/icons/quit.png"), "&Quit", parent);
+		auto action = new QAction(QIcon(icons.filePath("quit.png")), "&Quit", parent);
 		action->setShortcuts(QKeySequence::Quit);
 		action->setStatusTip("Quit the application");
 		actions_[aFileQuit] = action;
 	}
 	
 	{
-		auto action = new QAction(QIcon("data/icons/sync.png"), "Refresh", parent);
+		auto action = new QAction(QIcon(icons.filePath("sync.png")), "Refresh", parent);
 		action->setShortcuts(QKeySequence::Refresh);
 		action->setStatusTip("Refresh the UI");
 		actions_[aFileRefresh] = action;
@@ -47,21 +53,28 @@ bool Actions::initialise(QObject* parent)
 	// aGitCommit
 	
 	{
-		auto action = new QAction(QIcon("data/icons/fetch.png"), "Fetch", parent);
+		auto action = new QAction(QIcon(icons.filePath("fetch.png")), "Fetch", parent);
 		action->setStatusTip("Git Fetch from default remote");
 		actions_[aGitFetch] = action;
 	}
 	
 	{
-		auto action = new QAction(QIcon("data/icons/pull.png"), "Pull", parent);
+		auto action = new QAction(QIcon(icons.filePath("pull.png")), "Pull", parent);
 		action->setStatusTip("Git Pull with default settings");
 		actions_[aGitPull] = action;
 	}
 	
 	{
-		auto action = new QAction(QIcon("data/icons/push.png"), "Push", parent);
+		auto action = new QAction(QIcon(icons.filePath("push.png")), "Push", parent);
 		action->setStatusTip("Git Push with default settings");
 		actions_[aGitPush] = action;
+	}
+	
+	// Repositories view
+	{
+		auto action = new QAction(QIcon(icons.filePath("repo.png")), "Edit", parent);
+		action->setStatusTip("Edit repositories");
+		actions_[aRepoEdit] = action;
 	}
 
   return true;

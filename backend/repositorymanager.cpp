@@ -55,6 +55,8 @@ bool RepositoryManager::load()
 	QJsonObject main = json.object();
 	int version = main["version"].toInt();
 	ASSERT(version == 1);
+	if (version != 1)
+		return false;
 	
 	QJsonArray repos = main["repositories"].toArray();
 	for (int i = 0; i < repos.size(); ++i) {

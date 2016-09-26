@@ -20,13 +20,19 @@ class Main:
             ,"debug":"-DCMAKE_BUILD_TYPE=DEBUG"
             ,"release":"-DCMAKE_BUILD_TYPE=RELEASE"
         }
-    
+     
     def __create(self, path, arch, config):
         """Create the build folder and prepare cmake"""
         print("Creating folder " + path + " and preparing CMake")
         os.makedirs(path)
         proc = subprocess.Popen(["cmake", self.__params[config],
             self.__params[arch], "../.."], cwd=path)
+        proc.wait()
+
+    def __pack(self, path):
+        """Prepare a package with the binary and resources"""
+        print("Preparing package")
+        proc = subprocess.Popen(["cpack", "../.."], cwd=path)
         proc.wait()
 
     def __make(self, path):
@@ -43,7 +49,7 @@ class Main:
         parser.add_argument("arch", metavar="A", nargs="?", choices=self.__arch,
             default="x86", help="Target architecture")
         parser.add_argument("--clean", action="store_const", const=True,
-            default=False, help="Delete existing folder and start anew") 
+            default=False, help="Delete existing folder and start anew")
         args = parser.parse_args()
 
         if args.arch == "x86":
@@ -64,6 +70,8 @@ class Main:
             self.__create(path, args.arch, args.config)
 
         self.__make(path)
+        if args.config == "release":
+            self.__pack(path)
 
 if __name__ == "__main__":
     main = Main()

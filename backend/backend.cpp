@@ -19,6 +19,7 @@ Backend& Backend::instance()
 }
 
 Backend::Backend()
+: resourcesPath_(SHARED_DATA_FOLDER)
 {
 }
 
@@ -27,16 +28,26 @@ const Repository& Backend::currentRepo() const
 	return RepositoryManager::instance().active();
 }
 
-bool Backend::initialise()
+bool Backend::initialise(QObject* mainWin)
 {
-	const QString root(".config/gitkit");
+	if (!resourcesPath_.exists())
+	{
+		ASSERT(false);
+		return false;
+	}
+	const QString config(".config/gitkit");
 	
 	configPath_ = QDir::home();
 	ASSERT(configPath_.exists());
-	configPath_.mkpath(root);
-	bool ok = configPath_.cd(root);
+	configPath_.mkpath(config);
+	bool ok = configPath_.cd(config);
 	ASSERT(ok);
 	
+	// Initialise actions
+	ok = Actions::initialise(mainWin, resourcesPath_);
+	if (!ok)
+		return false;
+		
 	// Saved data
 	QFileInfo repositories(configPath_, "repositories.json");
 	if (!RepositoryManager::instance().initialise(repositories))
