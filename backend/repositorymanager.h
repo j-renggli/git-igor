@@ -17,6 +17,8 @@ class RepositoryManager {
 		Repository& active() { return *repositories_.at(active_); }
 		Repository& at(size_t index) { return *repositories_.at(index); } // TODO: UUID !?
 		
+		bool add(const QString& name, const QDir& root);
+		
 		bool initialise(const QFileInfo& storagePath);
 		
 		bool load();

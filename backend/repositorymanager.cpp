@@ -27,6 +27,12 @@ RepositoryManager& RepositoryManager::instance()
 	return s_repositories;
 }
 
+bool RepositoryManager::add(const QString& name, const QDir& root)
+{
+	repositories_.push_back(std::unique_ptr<Repository>(new Repository(name, root)));
+	return repositories_.back()->initialise();
+}
+
 bool RepositoryManager::initialise(const QFileInfo& storagePath)
 {
 	storagePath_ = storagePath;

@@ -85,15 +85,21 @@ void UIRepositories::initialise()
 	connect(commit_, &QPushButton::clicked, this, &UIRepositories::onCommit);
 	connect(repoAdd_, &QPushButton::clicked, this, &UIRepositories::onAddRepo);
 	
-	repoAddUI_ = new UIRepoAdd();
-	repoAddUI_->initialise(true);
-	remoteAddUI_ = new UIRepoAdd();
-	remoteAddUI_->initialise(false);
+	repoAddUI_ = new UIRepoAdd(true);
+	repoAddUI_->initialise();
+	remoteAddUI_ = new UIRepoAdd(false);
+	remoteAddUI_->initialise();
 }
 
 void UIRepositories::onAddRepo()
 {
-	repoAddUI_->show();
+	auto accepted = repoAddUI_->exec();
+	if (accepted == QDialog::Accepted)
+	{
+		auto& manager = RepositoryManager::instance();
+		if (manager.add(repoAddUI_->name(), repoAddUI_->path()))
+			updateUI();
+	}
 }
 
 void UIRepositories::onCancel()
@@ -139,11 +145,22 @@ void UIRepositories::onShow()
 	show();
 }
 
+void UIRepositories::updateUI()
+{
+	repositoriesModel_.reload();
+}
+
 ////////////////////////////////////////////////////////////////
 
 RepositoriesModel::RepositoriesModel()
 : manager_(RepositoryManager::instance())
 {
+}
+
+void RepositoriesModel::reload()
+{
+	beginResetModel();
+	endResetModel();
 }
 
 QVariant RepositoriesModel::headerData(int section, Qt::Orientation orientation, int role) const
