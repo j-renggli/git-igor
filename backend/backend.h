@@ -21,6 +21,7 @@ public:
 	
 	const QDir& configFolder() const { return configPath_; }
 	const QDir& cssFolder() const { return cssPath_; }
+	QFileInfo style() const;
 	
 	bool initialise(QObject* mainWin);
 

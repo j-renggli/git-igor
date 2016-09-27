@@ -130,4 +130,14 @@ void Backend::onPush()
 	}
 }
 
+QFileInfo Backend::style() const
+{
+	// TODO: Restore which style from .config...
+	QDir styles = resourcesPath_;
+	ASSERT(styles.exists("res/styles"));
+	if (!styles.cd("res/styles"))
+		return QFileInfo();
+	return QFileInfo(styles.filePath("standard.qss"));
+}
+
 }

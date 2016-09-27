@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QtCore/QFileInfo>
 #include <QtWidgets/QAction>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QTableView>
@@ -28,6 +29,8 @@ public:
   ~MainWin();
 
 	bool initialise();
+	
+	QFileInfo style() const;
 	
 private:
   bool createActions();
