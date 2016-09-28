@@ -29,23 +29,75 @@ RepositoryManager& RepositoryManager::instance()
 
 bool RepositoryManager::add(const QString& name, const QDir& root)
 {
+	beginResetModel();
 	repositories_.push_back(std::unique_ptr<Repository>(new Repository(name, root)));
 	return repositories_.back()->initialise();
+	endResetModel();
+}
+
+QVariant RepositoryManager::data(const QModelIndex &index, int role) const
+{
+	if (role == Qt::DisplayRole)
+	{	
+		const size_t row = index.row();
+		
+		if (row < repositories_.size())
+		{
+			if (auto& repo = repositories_.at(row))
+			{
+				switch (index.column())
+				{
+				case 0:
+					return QVariant(repo->name());
+				case 1:
+					return QVariant(repo->root().absolutePath());
+				}
+			}
+		}
+	}
+	
+	return QVariant();
+}
+
+QVariant RepositoryManager::headerData(int section, Qt::Orientation orientation, int role) const
+{
+	if (role == Qt::DisplayRole && orientation == Qt::Horizontal)
+	{
+		switch (section)
+		{
+			case 0:
+				return QVariant("Name");
+			case 1:
+				return QVariant("Path");
+		}
+	}
+	
+	return QVariant();
+}
+
+QModelIndex RepositoryManager::index(int row, int column, const QModelIndex &parent) const
+{
+	if (parent.isValid())
+		return QModelIndex();
+		
+	return createIndex(row, column, nullptr);
 }
 
 bool RepositoryManager::initialise(const QFileInfo& storagePath)
 {
 	storagePath_ = storagePath;
-	
+	/*
 	repositories_.push_back(std::unique_ptr<Repository>(new Repository(QString("DogFood"), QDir("."))));
 	repositories_.back()->initialise();
 	active_ = 0;
-	
+	*/
 	return load();
 }
 
 bool RepositoryManager::load()
 {
+	beginResetModel();
+	
 	// Empty repos...
 	repositories_.clear();
 	
@@ -73,9 +125,17 @@ bool RepositoryManager::load()
 	
 	active_ = main["active"].toInt();
 	
+	endResetModel();
+	
 	return true;
 }
-
+/*
+void RepositoryManager::reload()
+{
+	beginResetModel();
+	endResetModel();
+}
+*/
 bool RepositoryManager::save()
 {
 	QFile file(storagePath_.filePath());
@@ -98,6 +158,24 @@ bool RepositoryManager::save()
 	QJsonDocument json(main);
 	file.write(json.toJson());
 	return true;
+}
+
+QModelIndex RepositoryManager::parent(const QModelIndex &index) const
+{
+	return QModelIndex();
+}
+
+int RepositoryManager::columnCount(const QModelIndex& parent) const
+{
+	return 2;
+}
+
+int RepositoryManager::rowCount(const QModelIndex& parent) const
+{
+	if (parent.isValid())
+		return 0;
+		
+	return repositories_.size();
 }
 
 }

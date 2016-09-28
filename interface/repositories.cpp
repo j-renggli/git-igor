@@ -32,8 +32,10 @@ void UIRepositories::initialise()
 	int rightCol = leftCol+leftSize;
 	int rightSize = 3;
 	
+	auto& manager = RepositoryManager::instance();
+	
 	repositories_ = new QTreeView;
-	repositories_->setModel(&repositoriesModel_);
+	repositories_->setModel(&manager);
 	layout->addWidget(repositories_, 0, leftCol, 4, leftSize);
 	
 	{
@@ -147,11 +149,11 @@ void UIRepositories::onShow()
 
 void UIRepositories::updateUI()
 {
-	repositoriesModel_.reload();
+	//repositoriesModel_.reload();
 }
 
 ////////////////////////////////////////////////////////////////
-
+/*
 RepositoriesModel::RepositoriesModel()
 : manager_(RepositoryManager::instance())
 {
@@ -219,7 +221,7 @@ int RepositoriesModel::rowCount(const QModelIndex& parent) const
 		
 	return manager_.size();
 }
-
+*/
 ////////////////////////////////////////////////////////////////
 
 RemotesModel::RemotesModel()
