@@ -30,8 +30,10 @@ FIND_PACKAGE(Qt5WebKitWidgets REQUIRED)
 STRING(REPLACE "\\" "\\\\" SHARED_DATA_ESCAPED ${SHARED_DATA})
 
 SET(CMAKE_VERBOSE_MAKEFILE 0)
-SET(CMAKE_CXX_FLAGS_DEBUG "-Wall -Werror -O -ansi -pedantic -std=c++11 -g -pg -fpic -fvisibility=hidden -fvisibility-inlines-hidden -Wno-long-long -DDEBUG -DSHARED_DATA_FOLDER=\"\\\"${PROJECT_SOURCE_DIR}/data\\\"\"")
-SET(CMAKE_CXX_FLAGS_RELEASE "-Wall -Werror -O3 -ansi -pedantic -std=c++11 -g -pg -fpic -fvisibility=hidden -fvisibility-inlines-hidden -Wno-long-long -DSHARED_DATA_FOLDER=\"\\\"${SHARED_DATA_ESCAPED}\\\"\"")
+ADD_COMPILE_OPTIONS(-std=c++11)
+SET(CMAKE_CXX_FLAGS "-Wall -Werror -ansi -pedantic -g -pg -fpic -fvisibility=hidden -fvisibility-inlines-hidden -Wno-long-long")
+SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -O -DDEBUG -DSHARED_DATA_FOLDER=\"\\\"${PROJECT_SOURCE_DIR}/data\\\"\"")
+SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS} -O3 -DSHARED_DATA_FOLDER=\"\\\"${SHARED_DATA_ESCAPED}\\\"\"")
 
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
 SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY bin)
