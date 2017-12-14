@@ -31,6 +31,10 @@ bool RepositoryManager::add(const QString& name, const QDir& root)
 {
 	beginResetModel();
 	repositories_.push_back(std::unique_ptr<Repository>(new Repository(name, root)));
+    if (active_ >= repositories_.size())
+    {
+        active_ = repositories_.size() - 1;
+    }
 	return repositories_.back()->initialise();
 	endResetModel();
 }
@@ -124,6 +128,10 @@ bool RepositoryManager::load()
 	}
 	
 	active_ = main["active"].toInt();
+    if (active_ >= repositories_.size())
+    {
+        active_ = 0;
+    }
 	
 	endResetModel();
 	

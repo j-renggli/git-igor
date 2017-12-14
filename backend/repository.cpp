@@ -62,6 +62,7 @@ bool Repository::commit(const QString& message) const
 		return false;
 		
 	QProcess process;
+    process.setWorkingDirectory(root_.absolutePath());
 	process.start("git", QStringList() << "commit" << "-m" << message);
 	process.waitForFinished();
 	return true;
@@ -74,8 +75,8 @@ std::vector<Diff> Repository::diff(const FileStatus& file, bool indexed) const
 	// New file ? Whole file added !
 	FileStatus::eStatus workTreeStatus = file.status(false);
 	if (workTreeStatus == FileStatus::ADDED)
-	{
-		QFile disk_file( file.path().filePath() );
+    {
+        QFile disk_file( root_.filePath(file.path().filePath()) );
 		if ( disk_file.open(QIODevice::ReadOnly) )
 		{
 			QTextStream in(&disk_file);
@@ -99,8 +100,9 @@ std::vector<Diff> Repository::diff(const FileStatus& file, bool indexed) const
 		QString head("HEAD:");
 		head += file.path().filePath(); 
 		args << "show" << head;
-		
-		process.start("git", args);
+
+        process.setWorkingDirectory(root_.absolutePath());
+        process.start("git", args);
 		process.waitForFinished();
 		QString output = process.readAllStandardOutput();
 		auto lines = output.split(s_rxLineEnd, QString::SkipEmptyParts);
@@ -117,6 +119,7 @@ std::vector<Diff> Repository::diff(const FileStatus& file, bool indexed) const
 		args << "--cached";
 		
 	args << file.path().filePath();
+    process.setWorkingDirectory(root_.absolutePath());
 	process.start("git", args);
 	process.waitForFinished();
 	QString output = process.readAllStandardOutput();
@@ -180,6 +183,7 @@ bool Repository::initialise()
 	// Current branch
 	{
 		QProcess process;
+        process.setWorkingDirectory(root_.absolutePath());
 		process.start("git", QStringList() << "rev-parse" << "--abbrev-ref" << "HEAD");
 		process.waitForFinished();
 		QString output = process.readAllStandardOutput();
@@ -190,6 +194,7 @@ bool Repository::initialise()
 	
 	{
 		QProcess process;
+        process.setWorkingDirectory(root_.absolutePath());
 		process.start("git", QStringList() << "rev-parse" << "--abbrev-ref" << (currentBranch_ + "@{upstream}"));
 		process.waitForFinished();
 		QString output = process.readAllStandardOutput();
@@ -283,6 +288,7 @@ bool Repository::push(QString remote, QString branch)
 	}
 		
 	QProcess process;
+    process.setWorkingDirectory(root_.absolutePath());
 	process.start("git", QStringList() << "push" << remote << branch);
 	process.waitForFinished();
 	std::cout << "Push: [" << QString(process.readAllStandardOutput()).toLatin1().data() << "]" << std::endl;
@@ -306,7 +312,8 @@ void Repository::stage(const FileStatus& file) const
 		std::cerr << "Not implemented" << std::endl;
 		return;
 	}
-	
+
+    process.setWorkingDirectory(root_.absolutePath());
 	process.start("git", args);
 	process.waitForFinished();
 }
@@ -316,6 +323,7 @@ void Repository::unstage(const FileStatus& file) const
 	QProcess process;
 	QStringList args;
 	args << "reset" << file.path().filePath();
+    process.setWorkingDirectory(root_.absolutePath());
 	process.start("git", args);
 	process.waitForFinished();
 }
@@ -324,6 +332,7 @@ bool Repository::updateStatus()
 {
 	//std::cout << "Updating status of " << name_.toLatin1().data() << std::endl;
 	QProcess process;
+    process.setWorkingDirectory(root_.absolutePath());
 	process.start("git", QStringList() << "status" << "--porcelain" << "-b");
 	process.waitForFinished();
 	QString output = process.readAllStandardOutput();
@@ -421,7 +430,8 @@ bool Repository::updateStatus()
 				continue;
 			}
 			files_.insert(FileStatus(name, FileStatus::NORMAL, FileStatus::ADDED, false));
-		}	}
+		}
+	}
 	
 	return true;
 }

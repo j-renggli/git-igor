@@ -56,14 +56,14 @@ void UIStaging::initialise()
 	show();
 	
 	Backend& backend = Backend::instance();
-	connect(&backend, SIGNAL(onRepoUpdated()), this, SLOT(onUpdate()));
+    connect(&backend, &Backend::onRepoUpdated, this, &UIStaging::onUpdate);
 	
-	connect(workTree_, SIGNAL(clicked(QModelIndex)), this, SLOT(onShowWorkTreeFile(QModelIndex)));
-	connect(workTree_, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onStageFile(QModelIndex)));
-	connect(index_, SIGNAL(clicked(QModelIndex)), this, SLOT(onShowIndexFile(QModelIndex)));
-	connect(index_, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onUnstageFile(QModelIndex)));
+    connect(workTree_, &QTreeView::clicked, this, &UIStaging::onShowWorkTreeFile);
+    connect(workTree_, &QTreeView::doubleClicked, this, &UIStaging::onStageFile);
+    connect(index_, &QTreeView::clicked, this, &UIStaging::onShowIndexFile);
+    connect(index_, &QTreeView::doubleClicked, this, &UIStaging::onUnstageFile);
 	
-	connect(commit_, SIGNAL(clicked(bool)), this, SLOT(onCommit(bool)));
+    connect(commit_, &QPushButton::clicked, this, &UIStaging::onCommit);
 }
 
 void UIStaging::onCommit(bool checked)
