@@ -31,19 +31,6 @@ bool FileStatus::operator<(const FileStatus& rhs) const
 
 ////////////////////////////////////////////////////////////////
 
-Diff::Diff(const QFileInfo& left, const QFileInfo& right)
-: left_(left)
-, right_(right)
-{
-}
-
-void Diff::addLine(const QString& line)
-{
-	lines_ << line;
-}
-
-////////////////////////////////////////////////////////////////
-
 Repository::Repository(const QString& name, const QDir& root)
 : root_(root)
 , name_(name)

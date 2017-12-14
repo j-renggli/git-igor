@@ -55,6 +55,7 @@ mainwin.cpp
 
 backend/actions.cpp
 backend/backend.cpp
+backend/diff.cpp
 backend/gitprocess.cpp
 backend/repository.cpp
 backend/repositorymanager.cpp

@@ -4,6 +4,7 @@
 
 #include <QtCore/QDir>
 
+#include "diff.h"
 #include "runner.h"
 
 namespace gitkit {
@@ -34,22 +35,6 @@ class FileStatus
 		eStatus index_;
 		eStatus workTree_;
 		bool conflict_;
-};
-
-class Diff
-{
-	public:
-		Diff(const QFileInfo& left, const QFileInfo& right);
-		
-		void addLine(const QString& line);
-		
-		const QStringList& lines() const { return lines_; }
-		
-	private:
-		QFileInfo left_;
-		QFileInfo right_;
-		
-		QStringList lines_;
 };
 
 class Repository
