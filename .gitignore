@@ -2,6 +2,7 @@ build/
 data/octicons**
 
 .codelite/
+CMakeLists.txt.user
 
 **gmon.out
 

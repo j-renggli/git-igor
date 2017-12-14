@@ -9,11 +9,11 @@
 
 #include <gkassert.h>
 
+#include "gitprocess.h"
 #include "runaction.h"
 
 namespace gitkit {
-	
-const QRegExp Repository::s_rxLineEnd("[\r\n]");
+
 const QRegularExpression Repository::s_rxDiffFiles("^diff --git a[/](.+) b[/](.+)$");
 const QRegularExpression Repository::s_rxDiffContext("^@@ [-](\\d+),(\\d+) [+](\\d+),(\\d+) @@(?: (.+))?$");
 
@@ -58,14 +58,11 @@ Repository::Repository(const Repository& copy)
 
 bool Repository::commit(const QString& message) const
 {
-	if (message.isEmpty())
-		return false;
-		
-	QProcess process;
-    process.setWorkingDirectory(root_.absolutePath());
-	process.start("git", QStringList() << "commit" << "-m" << message);
-	process.waitForFinished();
-	return true;
+    if (message.isEmpty())
+        return false;
+
+    GitProcess process(root_);
+    return process.run(GitProcess::Commit, QStringList() << "-m" << message, false, false);
 }
 
 std::vector<Diff> Repository::diff(const FileStatus& file, bool indexed) const
@@ -95,36 +92,29 @@ std::vector<Diff> Repository::diff(const FileStatus& file, bool indexed) const
 	}
 	else if (workTreeStatus == FileStatus::DELETED)
 	{
-		QProcess process;
-		QStringList args;
-		QString head("HEAD:");
-		head += file.path().filePath(); 
-		args << "show" << head;
+        QString head("HEAD:");
+        head += file.path().filePath();
 
-        process.setWorkingDirectory(root_.absolutePath());
-        process.start("git", args);
-		process.waitForFinished();
-		QString output = process.readAllStandardOutput();
-		auto lines = output.split(s_rxLineEnd, QString::SkipEmptyParts);
+        GitProcess process(root_);
+        process.run(GitProcess::Show, QStringList() << head, true, false);
+        auto lines = process.linesOut();
+
 		diffs.push_back(Diff(file.path(), file.path()));
 		for (auto line : lines)
 			diffs.back().addLine("-" + line);
 		return diffs;
 	}
-	
-	QProcess process;
-	QStringList args;
-	args << "diff" << "--no-color";
-	if (indexed)
-		args << "--cached";
-		
-	args << file.path().filePath();
-    process.setWorkingDirectory(root_.absolutePath());
-	process.start("git", args);
-	process.waitForFinished();
-	QString output = process.readAllStandardOutput();
-	auto lines = output.split(s_rxLineEnd, QString::SkipEmptyParts);
-	
+
+    QStringList args;
+    args << "--no-color";
+    if (indexed)
+        args << "--cached";
+    args << file.path().filePath();
+
+    GitProcess process(root_);
+    process.run(GitProcess::Diff, args, true, false);
+    auto lines = process.linesOut();
+
 	QFileInfo left, right;
 	QString context;
 	bool hasContext = false;
@@ -182,23 +172,17 @@ bool Repository::initialise()
 {
 	// Current branch
 	{
-		QProcess process;
-        process.setWorkingDirectory(root_.absolutePath());
-		process.start("git", QStringList() << "rev-parse" << "--abbrev-ref" << "HEAD");
-		process.waitForFinished();
-		QString output = process.readAllStandardOutput();
-		currentBranch_ = output.split(s_rxLineEnd, QString::SkipEmptyParts)[0];
+        GitProcess process(root_);
+        process.run(GitProcess::RevParse, QStringList() << "--abbrev-ref" << "HEAD", true, false);
+        currentBranch_ = process.linesOut()[0];
 		if (currentBranch_.isEmpty())
 			return false;
 	}
 	
 	{
-		QProcess process;
-        process.setWorkingDirectory(root_.absolutePath());
-		process.start("git", QStringList() << "rev-parse" << "--abbrev-ref" << (currentBranch_ + "@{upstream}"));
-		process.waitForFinished();
-		QString output = process.readAllStandardOutput();
-		QString full = output.split(s_rxLineEnd, QString::SkipEmptyParts)[0];
+        GitProcess process(root_);
+        process.run(GitProcess::RevParse, QStringList() << "--abbrev-ref" << (currentBranch_ + "@{upstream}"), true, false);
+        QString full = process.linesOut()[0];
 		if (!full.isEmpty())
 		{
 			auto first = full.indexOf("/");
@@ -330,20 +314,17 @@ void Repository::unstage(const FileStatus& file) const
 
 bool Repository::updateStatus()
 {
-	//std::cout << "Updating status of " << name_.toLatin1().data() << std::endl;
-	QProcess process;
-    process.setWorkingDirectory(root_.absolutePath());
-	process.start("git", QStringList() << "status" << "--porcelain" << "-b");
-	process.waitForFinished();
-	QString output = process.readAllStandardOutput();
-	
+    GitProcess process(root_);
+    process.run(GitProcess::Status, QStringList() << "--porcelain" << "-b", true, false);
+    QString output = process.out();
+
 	// ?
 	if (output == lastStatus_)
 		return false;
 		
 	lastStatus_ = output;
 	
-	auto lines = output.split(s_rxLineEnd, QString::SkipEmptyParts);
+    auto lines = process.linesOut();
 	
 	// 1st line: branch
 	currentBranch_ = lines[0].mid(3);
@@ -411,13 +392,10 @@ bool Repository::updateStatus()
 	// Now add files in new directories...
 	while (!subdirs.empty())
 	{
-		//std::cout << subdirs.top().filePath().toLatin1().data() << std::endl;
-		process.start("git", QStringList() << "status" << (subdirs.top().filePath() + "*") << "--porcelain");
-		process.waitForFinished();
-		QString output = process.readAllStandardOutput();
-		
-		lines = output.split(s_rxLineEnd, QString::SkipEmptyParts);
-		//std::cout << output.toLatin1().data() << std::endl;
+        GitProcess process(root_);
+        process.run(GitProcess::Status, QStringList() << (subdirs.top().filePath() + "*") << "--porcelain", true, false);
+        lines = process.linesOut();
+
 		subdirs.pop();
 		
 		for (auto line : lines)

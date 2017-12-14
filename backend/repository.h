@@ -92,8 +92,7 @@ class Repository
 		std::vector<QString> remotes_;
 		std::vector<QString> branches_;
 		std::pair<QString, QString> tracking_;
-		
-		static const QRegExp s_rxLineEnd;
+
 		static const QRegularExpression s_rxDiffFiles;
 		static const QRegularExpression s_rxDiffContext;
 };
