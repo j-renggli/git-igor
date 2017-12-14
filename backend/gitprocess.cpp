@@ -22,11 +22,23 @@ bool GitProcess::run(eCommand command, QStringList args, bool readOut, bool read
     process.setWorkingDirectory(root_);
     switch (command)
     {
+    case Add:
+        args.insert(0, "add");
+        break;
     case Commit:
         args.insert(0, "commit");
         break;
+    case Delete:
+        args.insert(0, "rm");
+        break;
     case Diff:
         args.insert(0, "diff");
+        break;
+    case Push:
+        args.insert(0, "push");
+        break;
+    case Reset:
+        args.insert(0, "reset");
         break;
     case RevParse:
         args.insert(0, "rev-parse");

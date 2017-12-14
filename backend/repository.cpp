@@ -3,7 +3,6 @@
 #include <iostream>
 #include <stack>
 
-#include <QtCore/QProcess>
 #include <QtCore/QRegularExpression>
 #include <QtCore/QTextStream>
 
@@ -269,47 +268,38 @@ bool Repository::push(QString remote, QString branch)
 		}
 		
 		branch = tracking_.second;
-	}
-		
-	QProcess process;
-    process.setWorkingDirectory(root_.absolutePath());
-	process.start("git", QStringList() << "push" << remote << branch);
-	process.waitForFinished();
-	std::cout << "Push: [" << QString(process.readAllStandardOutput()).toLatin1().data() << "]" << std::endl;
+    }
+
+    GitProcess process(root_);
+    return process.run(GitProcess::Push, QStringList() << remote << branch, true, false);
+    std::cout << "Push: [" << process.out().toLatin1().data() << "]" << std::endl;
 	return true;
 }
 
 void Repository::stage(const FileStatus& file) const
 {
-	QProcess process;
-	QStringList args;
+    GitProcess::eCommand command;
 	switch (file.status(false))
 	{
 	case FileStatus::ADDED:
 	case FileStatus::MODIFIED:
-		args << "add" << file.path().filePath();
+        command = GitProcess::Add;
 		break;
 	case FileStatus::DELETED:
-		args << "rm" << file.path().filePath();
+        command = GitProcess::Delete;
 		break;
 	default:
-		std::cerr << "Not implemented" << std::endl;
-		return;
+        throw std::runtime_error("Not implemented");
 	}
 
-    process.setWorkingDirectory(root_.absolutePath());
-	process.start("git", args);
-	process.waitForFinished();
+    GitProcess process(root_);
+    process.run(command, QStringList() << file.path().filePath(), false, false);
 }
 
 void Repository::unstage(const FileStatus& file) const
 {
-	QProcess process;
-	QStringList args;
-	args << "reset" << file.path().filePath();
-    process.setWorkingDirectory(root_.absolutePath());
-	process.start("git", args);
-	process.waitForFinished();
+    GitProcess process(root_);
+    process.run(GitProcess::Reset, QStringList() << file.path().filePath(), false, false);
 }
 
 bool Repository::updateStatus()

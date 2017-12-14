@@ -8,8 +8,12 @@ namespace gitkit {
 class GitProcess {
 public:
     enum eCommand {
+        Add,
         Commit,
+        Delete,
         Diff,
+        Push,
+        Reset,
         RevParse,
         Show,
         Status,
