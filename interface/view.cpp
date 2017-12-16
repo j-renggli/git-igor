@@ -86,6 +86,50 @@ void UIView::onShowDiff(const std::vector<Diff>& diff)
 	}
 		
 		
+    html += "</style></head><body>";
+    auto contexts = diff.at(0).contexts();
+
+    // Header: file name
+    html += "<h1>";
+    auto fileInfo = diff.at(0).fileInfo();
+    if (fileInfo.first == fileInfo.second)
+        html += fileInfo.first.filePath();
+    else
+        html += fileInfo.first.filePath() + " -> " + fileInfo.second.filePath();
+    html += "</h1>";
+
+    for (const auto& context : contexts)
+    {
+        html += "<div class='context'>\n";
+        html += "<h2>Line ";
+        html += context.startLineOld();
+        html += " / ";
+        html += context.startLineNew();
+        html += "</h1>\n";
+        html += "<pre>\n";
+
+        for (const auto& line : context.linear())
+        {
+            html += "<code class=\"language-cpp";
+            switch (line.type())
+            {
+            case DiffLine::Inserted:
+                html += " addition";
+                break;
+            case DiffLine::Deleted:
+                html += " deletion";
+                break;
+            default:
+                break;
+            }
+            html += "\">" + line.line().toHtmlEscaped() + "</code>\n";
+        }
+
+        html += "</pre></div>\n";
+    }
+
+    html += "</body></html>";
+/*
 	html += "</style></head><body><pre>";
 	QStringList lines = diff.at(0).lines();
 	for (int i = 0; i < lines.length(); ++i)
@@ -102,9 +146,9 @@ void UIView::onShowDiff(const std::vector<Diff>& diff)
 			html += " addition";
 		if (line[0] == '-')
 			html += " deletion";
-		html += "\">" + line.toHtmlEscaped() + "</code>\n";
+        html += "\">" + line.mid(1).toHtmlEscaped() + "</code>\n";
 	}
-	html += "</pre></body></html>";
+    html += "</pre></body></html>";*/
 	view_->setHtml(html);
 }
 

@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <stack>
+#include <sstream>
 
 #include <QtCore/QRegularExpression>
 #include <QtCore/QTextStream>
@@ -68,7 +69,7 @@ std::vector<Diff> Repository::diff(const FileStatus& file, bool indexed) const
 
 			while(!in.atEnd())
 			{
-				diffs.back().addLine("+" + in.readLine());
+                diffs.back().pushNewLine(in.readLine());
 			}
 
 			disk_file.close();
@@ -87,7 +88,7 @@ std::vector<Diff> Repository::diff(const FileStatus& file, bool indexed) const
 
 		diffs.push_back(Diff(file.path(), file.path()));
 		for (auto line : lines)
-			diffs.back().addLine("-" + line);
+            diffs.back().pushDeletedLine(line);
 		return diffs;
 	}
 
@@ -105,6 +106,14 @@ std::vector<Diff> Repository::diff(const FileStatus& file, bool indexed) const
 	QString context;
 	bool hasContext = false;
 	
+    enum Previous
+    {
+        ADD,
+        DEL,
+        BOTH
+    };
+    Previous lastOp = BOTH;
+
 	for (auto line : lines)
 	{
 		//std::cout << line.toLatin1().data() << std::endl;
@@ -116,22 +125,46 @@ std::vector<Diff> Repository::diff(const FileStatus& file, bool indexed) const
 			context = "";
 			hasContext = false;
 			diffs.push_back(Diff(left, right));
+            std::cout << "A: " << context.toLatin1().data() << std::endl;
 			continue;
-		}
-		
-		match = s_rxDiffContext.match(line);
-		if (match.hasMatch())
-		{
-			context = match.captured(5);
-			hasContext = true;
-			continue;
-		}
-		
+        }
+
+        match = s_rxDiffContext.match(line);
+        if (match.hasMatch())
+        {
+            int startDel = match.captured(1).toInt();
+            int countDel = match.captured(2).toInt();
+            int startAdd = match.captured(3).toInt();
+            int countAdd = match.captured(4).toInt();
+            QString funcName = match.captured(5);
+            diffs.back().startContext(startDel, countDel, startAdd, countAdd, funcName);
+            hasContext = true;
+            continue;
+        }
+
 		if ( !hasContext )
 			continue;
 			
 		ASSERT(!diffs.empty());
-		diffs.back().addLine(line);
+        if (line[0] == '-') {
+            diffs.back().pushDeletedLine(line);
+            lastOp = DEL;
+        } else if (line[0] == '+') {
+            diffs.back().pushNewLine(line);
+            lastOp = ADD;
+        } else if (line[0] == ' ') {
+            diffs.back().pushLine(line);
+            lastOp = BOTH;
+        } else if (line == "\\ No newline at end of file") {
+            if (lastOp == ADD || lastOp == BOTH)
+                diffs.back().currentContext().setNoNewline(true);
+            if (lastOp == DEL || lastOp == BOTH)
+                diffs.back().currentContext().setNoNewline(false);
+        } else {
+            std::stringstream message;
+            message << "Unexpected first character in line [" << line.toLatin1().data() << "]";
+            throw std::runtime_error(message.str());
+        }
 	}
 	
 	return diffs;
