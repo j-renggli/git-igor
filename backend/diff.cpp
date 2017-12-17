@@ -39,6 +39,27 @@ void Diff::pushDeletedLine(const QString& line)
 
 ////////////////////////////////////////////////////////////////
 
+void DiffContext::push(DiffLine::LineType type, const QString& text)
+{
+    size_t line = 0;
+    size_t lineAlt(-1);
+    switch(type)
+    {
+    case DiffLine::Normal:
+        line = startOld_ + countOld_++;
+        lineAlt = startNew_ + countNew_++;
+        break;
+    case DiffLine::Inserted:
+        line = startNew_ + countNew_++;
+        break;
+    case DiffLine::Deleted:
+        line = startOld_ + countOld_++;
+        break;
+    }
+
+    lines_.push_back(DiffLine(type, text, line, lineAlt));
+}
+
 void DiffContext::setNoNewline(bool sideNew)
 {
     if (sideNew)

@@ -26,28 +26,52 @@ bool Preferences::generateCSS()
     QFile file( diff.filePath() );
     if ( file.open(QIODevice::ReadWrite) )
     {
-    QTextStream stream( &file );
+        QTextStream stream( &file );
         stream << "body {" << endl;
         stream << "  font-family: \"Courier New\", Monospace;" << endl;
-    stream << "  font-size: 10pt;" << endl;
-    stream << "  margin: 0;" << endl;
+        stream << "  font-size: 10pt;" << endl;
+        stream << "  margin: 0;" << endl;
         stream << "}" << endl << endl;
 
-    stream << "code {" << endl;
-    stream << "  tab-size: 4;" << endl;
-    stream << "}" << endl << endl;
-/*
-    stream << ".deletion:before {" << endl;
-    stream << "  content: '-';" << endl;
-    stream << "}" << endl << endl;
-*/
-    stream << ".addition {" << endl;
-        stream << "  background-color: #eeffee;" << endl;
-    stream << "}" << endl << endl;
+        stream << "h1 {" << endl;
+        stream << "  background: lightgrey;" << endl;
+        stream << "}" << endl << endl;
 
-    stream << ".deletion {" << endl;
-        stream << "  background-color: #ffeeee;" << endl;
-    stream << "}" << endl << endl;
+        stream << "code {" << endl;
+        stream << "  tab-size: 4;" << endl; // TODO: user-def
+        stream << "}" << endl << endl;
+
+        stream << ".diff {" << endl;
+        stream << "  display: flex;" << endl;
+        stream << "  font-size: small;" << endl;
+        stream << "}" << endl << endl;
+
+        stream << "pre {" << endl;
+        stream << "  margin: 0;" << endl;
+        stream << "}" << endl << endl;
+
+        stream << ".info {" << endl;
+        stream << "  margin-right: 0.5em;" << endl;
+        stream << "}" << endl << endl;
+
+        stream << ".context {" << endl;
+        stream << "  border: 1px solid lightcyan;" << endl;
+        stream << "  margin-top: 1em;" << endl;
+        stream << "}" << endl << endl;
+
+        stream << ".context h2 {" << endl;
+        stream << "  background: lightcyan;" << endl;
+        stream << "  font-size: 1.1em;" << endl;
+        stream << "  margin: 0;" << endl;
+        stream << "}" << endl << endl;
+
+        stream << ".addition {" << endl;
+            stream << "  background-color: #eeffee;" << endl;
+        stream << "}" << endl << endl;
+
+        stream << ".deletion {" << endl;
+            stream << "  background-color: #ffeeee;" << endl;
+        stream << "}" << endl << endl;
     }
     file.close();
 

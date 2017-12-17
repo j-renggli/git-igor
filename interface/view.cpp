@@ -100,55 +100,84 @@ void UIView::onShowDiff(const std::vector<Diff>& diff)
 
     for (const auto& context : contexts)
     {
-        html += "<div class='context'>\n";
-        html += "<h2>Line ";
-        html += context.startLineOld();
-        html += " / ";
-        html += context.startLineNew();
-        html += "</h1>\n";
-        html += "<pre>\n";
+        html += "<div class='context'>\n<h2>";
+        if (context.context().isEmpty())
+            html += "Global context";
+        else
+            html += context.context();
+        html += "</h2>\n";
 
-        for (const auto& line : context.linear())
+        QString prefix;
+        QString code;
+        for (const auto& line : context.lines())
         {
-            html += "<code class=\"language-cpp";
+            QString lineOld;
+            QString lineNew;
+            QString lineType;
+            QString classType;
             switch (line.type())
             {
             case DiffLine::Inserted:
-                html += " addition";
+                lineNew = QString::number(line.line());
+                lineType = "+";
+                classType = " addition";
                 break;
             case DiffLine::Deleted:
-                html += " deletion";
+                lineOld = QString::number(line.line());
+                lineType = "-";
+                classType = " deletion";
                 break;
             default:
+                lineType = " ";
                 break;
             }
-            html += "\">" + line.line().toHtmlEscaped() + "</code>\n";
+            prefix += lineOld + lineNew + " " + lineType + "\n";
+            code += "<code class=\"language-cpp" + classType + "\">";
+            code += line.text().toHtmlEscaped() + "</code>\n";
         }
 
-        html += "</pre></div>\n";
+        html += "<div class=\"diff\"><pre class=\"info\">" + prefix + "</pre><pre>" + code + "</pre></div></div>";
+
+        /*
+
+        html += "<pre>\n";
+
+        html += "<table>\n";
+
+        for (const auto& line : context.lines())
+        {
+            QString thLine;
+            QString thType;
+            QString classType;
+            switch (line.type())
+            {
+            case DiffLine::Inserted:
+                thLine = QString::number(line.line());
+                thType = "+";
+                classType = " addition";
+                break;
+            case DiffLine::Deleted:
+                thLine = QString::number(line.line());
+                thType = "-";
+                classType = " deletion";
+                break;
+            default:
+                thType = " ";
+                break;
+            }
+
+            html += "<tr class='" + classType + "'>\n";
+            html += "<th class='line'>" + thLine + "</th>\n";
+            html += "<th class='type'>" + thType + "</th>\n";
+            html += "<td><code class=\"language-cpp\">";
+            html += line.text().toHtmlEscaped() + "</code></td>\n</tr>\n";
+        }
+
+        html += "</table></pre></div>\n";
+        */
     }
 
     html += "</body></html>";
-/*
-	html += "</style></head><body><pre>";
-	QStringList lines = diff.at(0).lines();
-	for (int i = 0; i < lines.length(); ++i)
-	{
-		QString line = lines.at(i);
-		if (line.isEmpty())
-		{
-			html += "<code />\n";
-			continue;
-		}
-		
-		html += "<code class=\"language-cpp";
-		if (line[0] == '+')
-			html += " addition";
-		if (line[0] == '-')
-			html += " deletion";
-        html += "\">" + line.mid(1).toHtmlEscaped() + "</code>\n";
-	}
-    html += "</pre></body></html>";*/
 	view_->setHtml(html);
 }
 

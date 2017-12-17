@@ -124,8 +124,7 @@ std::vector<Diff> Repository::diff(const FileStatus& file, bool indexed) const
 			right = match.captured(2);
 			context = "";
 			hasContext = false;
-			diffs.push_back(Diff(left, right));
-            std::cout << "A: " << context.toLatin1().data() << std::endl;
+            diffs.push_back(Diff(left, right));
 			continue;
         }
 
@@ -147,13 +146,13 @@ std::vector<Diff> Repository::diff(const FileStatus& file, bool indexed) const
 			
 		ASSERT(!diffs.empty());
         if (line[0] == '-') {
-            diffs.back().pushDeletedLine(line);
+            diffs.back().pushDeletedLine(line.mid(1));
             lastOp = DEL;
         } else if (line[0] == '+') {
-            diffs.back().pushNewLine(line);
+            diffs.back().pushNewLine(line.mid(1));
             lastOp = ADD;
         } else if (line[0] == ' ') {
-            diffs.back().pushLine(line);
+            diffs.back().pushLine(line.mid(1));
             lastOp = BOTH;
         } else if (line == "\\ No newline at end of file") {
             if (lastOp == ADD || lastOp == BOTH)

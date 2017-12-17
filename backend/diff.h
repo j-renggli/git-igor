@@ -15,17 +15,22 @@ public:
     };
 
 public:
-    DiffLine(LineType type, const QString& line)
+    DiffLine(LineType type, const QString& text, size_t lineNum, size_t lineAlt = -1)
         : type_(type)
-        , line_(line)
+        , line_(lineNum)
+        , lineAlt_(lineAlt)
+        , text_(text)
     {}
 
-    const QString& line() const { return line_; }
+    size_t line() const { return line_; }
+    const QString& text() const { return text_; }
     const LineType type() const { return type_; }
 
 private:
-    LineType type_;
-    QString line_;
+    const LineType type_;
+    const size_t line_;
+    const size_t lineAlt_;
+    const QString text_;
 };
 
 class DiffContext
@@ -39,9 +44,14 @@ public:
         , context_(context)
     {}
 
-    void push(DiffLine::LineType type, const QString& line) { lines_.push_back(DiffLine(type, line)); }
+    void push(DiffLine::LineType type, const QString& text);
 
-    std::vector<DiffLine> linear() const { return lines_; }
+    QString context() const { return context_; }
+
+    std::vector<DiffLine> lines() const { return lines_; }
+
+    bool hasNewLineOld() const { return noNewlineOld_; }
+    bool hasNewLineNew() const { return noNewlineNew_; }
 
     size_t startLineOld() const { return startOld_; }
     size_t startLineNew() const { return startNew_; }
@@ -51,8 +61,10 @@ public:
 private:
     size_t startOld_;
     size_t expectedOld_;
+    size_t countOld_{0};
     size_t startNew_;
     size_t expectedNew_;
+    size_t countNew_{0};
     const QString context_;
 
     bool noNewlineOld_{false};
