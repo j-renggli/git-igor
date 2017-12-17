@@ -75,6 +75,8 @@ bool MainWin::initialise()
   updateToolbar();
 	
 	connect(staging_, SIGNAL(onShowDiff(const std::vector<Diff>&)), view_, SLOT(onShowDiff(const std::vector<Diff>&)));
+
+    Actions::getAction(Actions::aFileRefresh)->trigger();
 	
 	return true;
 }
