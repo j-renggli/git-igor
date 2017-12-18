@@ -198,7 +198,10 @@ bool Repository::initialise()
 		process.start("git", QStringList() << "rev-parse" << "--abbrev-ref" << (currentBranch_ + "@{upstream}"));
 		process.waitForFinished();
 		QString output = process.readAllStandardOutput();
-		QString full = output.split(s_rxLineEnd, QString::SkipEmptyParts)[0];
+		QString full;
+		auto parts = output.split(s_rxLineEnd, QString::SkipEmptyParts);
+		if (!parts.empty())
+			full = parts[0];
 		if (!full.isEmpty())
 		{
 			auto first = full.indexOf("/");

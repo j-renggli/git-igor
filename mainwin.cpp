@@ -4,8 +4,11 @@
 #include <iostream>
 //#include <fcntl.h>
 //#include <fstream>
+
+#ifdef __linux__
 #include <unistd.h>
 #include <sys/wait.h>
+#endif
 
 #include <QtGui/QKeyEvent>
 #include <QtWidgets/QMenuBar>

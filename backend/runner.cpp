@@ -111,13 +111,6 @@ void ActionWorker::run()
 ActionRunner::ActionRunner()
 {
 	pWorker_ = new ActionWorker;
-	connect(pWorker_, &QThread::finished, pWorker_, &QObject::deleteLater);
-	connect(pWorker_, &ActionWorker::notifyStartWork, this, &ActionRunner::notifyStartWork);
-	connect(pWorker_, &ActionWorker::notifyStopWork, this, &ActionRunner::notifyStopWork);
-	connect(pWorker_, &ActionWorker::notifyOutput, this, &ActionRunner::notifyOutput);
-	connect(pWorker_, &ActionWorker::notifyError, this, &ActionRunner::notifyError);
-	connect(pWorker_, &ActionWorker::notifyShowDialog, this, &ActionRunner::notifyShowDialog);
-	pWorker_->start();
 }
 
 ActionRunner::~ActionRunner()
@@ -129,6 +122,19 @@ bool ActionRunner::enqueue(const Process& process)
 	// TODO: Check if thread running
 	
 	pWorker_->enqueue(process);
+	return true;
+}
+
+bool ActionRunner::initialise()
+{
+	connect(pWorker_, &QThread::finished, pWorker_, &QObject::deleteLater);
+	connect(pWorker_, &ActionWorker::notifyStartWork, this, &ActionRunner::notifyStartWork);
+	connect(pWorker_, &ActionWorker::notifyStopWork, this, &ActionRunner::notifyStopWork);
+	connect(pWorker_, &ActionWorker::notifyOutput, this, &ActionRunner::notifyOutput);
+	connect(pWorker_, &ActionWorker::notifyError, this, &ActionRunner::notifyError);
+	connect(pWorker_, &ActionWorker::notifyShowDialog, this, &ActionRunner::notifyShowDialog);
+	pWorker_->start();
+
 	return true;
 }
 

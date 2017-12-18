@@ -13,13 +13,70 @@ SET(RES_PATH ${SHARED_DATA}/res)
 
 INCLUDE(CPackConfig.cmake)
 
-######## DEPENDENCIES ########
+######## SET-UP ########
 
-#FIND_PACKAGE(Qt5Quick REQUIRED)
-FIND_PACKAGE(Qt5Core REQUIRED)
-FIND_PACKAGE(Qt5Gui REQUIRED)
-FIND_PACKAGE(Qt5Widgets REQUIRED)
-FIND_PACKAGE(Qt5WebKitWidgets REQUIRED)
+SET(QT_REQUIRED
+Qt5Core
+Qt5Gui
+Qt5Widgets
+Qt5WebEngineWidgets
+)
+
+SET(QT_DEPS
+Qt5WebEngine
+Qt5Network
+Qt5MultimediaWidgets
+Qt5PrintSupport
+Qt5OpenGL
+Qt5Multimedia
+Qt5Positioning
+Qt5Sensors
+Qt5Qml
+Qt5Quick
+Qt5Sql
+)
+
+SET(QT_EXT
+#icuin52
+#icuuc52
+#icudt52
+)
+
+SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+IF (MSVC)
+        SET(QT_PATH "C:\\Qt\\5.8\\msvc2015_64\\")
+	SET(CMAKE_PREFIX_PATH ${QT_PATH})
+	LINK_DIRECTORIES("${QT_PATH}\\lib")
+	SET(CMAKE_INCLUDE_CURRENT_DIR ON)
+	SET(CMAKE_AUTOMOC ON)
+
+	SET(QT_USED ${QT_REQUIRED} ${QT_DEPS})
+	FOREACH(QTX ${QT_USED})
+		MESSAGE(STATUS "Copying ${QT_PATH}/bin/${QTX}.dll TO ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/%BUILD_TYPE%")
+		FILE(COPY ${QT_PATH}/bin/${QTX}.dll
+			DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Release
+		)
+		FILE(COPY ${QT_PATH}/bin/${QTX}d.dll
+			DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Debug
+		)
+	ENDFOREACH()
+	
+	FOREACH(QTX ${QT_EXT})
+		MESSAGE(STATUS "Copying ${QT_PATH}/bin/${QTX}.dll TO ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/%BUILD_TYPE%")
+		FILE(COPY ${QT_PATH}/bin/${QTX}.dll
+			DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Release
+		)
+		FILE(COPY ${QT_PATH}/bin/${QTX}.dll
+			DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Debug
+		)
+	ENDFOREACH()
+ENDIF (MSVC)
+
+######## DEPENDENCIES ########
+FOREACH(QTX ${QT_REQUIRED})
+	FIND_PACKAGE(${QTX} REQUIRED)
+ENDFOREACH()
 
 ######## ALL DLLs ########
 
@@ -31,9 +88,18 @@ STRING(REPLACE "\\" "\\\\" SHARED_DATA_ESCAPED ${SHARED_DATA})
 
 SET(CMAKE_VERBOSE_MAKEFILE 0)
 ADD_COMPILE_OPTIONS(-std=c++11)
-SET(CMAKE_CXX_FLAGS "-Wall -Werror -ansi -pedantic -g -pg -fpic -fvisibility=hidden -fvisibility-inlines-hidden -Wno-long-long")
-SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -O0 -DDEBUG -DSHARED_DATA_FOLDER=\"\\\"${PROJECT_SOURCE_DIR}/data\\\"\"")
-SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS} -O3 -DSHARED_DATA_FOLDER=\"\\\"${SHARED_DATA_ESCAPED}\\\"\"")
+SET(CMAKE_CXX_FLAGS "-Wall -ansi -pedantic -g -pg -fpic -fvisibility=hidden -fvisibility-inlines-hidden")
+IF(MSVC)
+        SET(FLAGS_COMMON "/Zi /Gm-")  # /WX
+	SET(FLAGS_DEBUG "/Od /Ob0")
+	SET(FLAGS_RELEASE "/Ox /Oi /Ot /Oy /GL /GS- /Gy /D _SECURE_SCL=0 ")
+        SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} ${FLAGS_COMMON} ${FLAGS_DEBUG} -O -DDEBUG -DSHARED_DATA_FOLDER=\"\\\"${PROJECT_SOURCE_DIR}/data\\\"\"")
+        SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} ${FLAGS_COMMON} ${FLAGS_RELEASE} /Zi -O3 -DSHARED_DATA_FOLDER=\"\\\"${SHARED_DATA_ESCAPED}\\\"\"")
+ELSE(MSVC)
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wno-long-long")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -O0 -DDEBUG -DSHARED_DATA_FOLDER=\"\\\"${PROJECT_SOURCE_DIR}/data\\\"\"")
+    SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS} -O3 -DSHARED_DATA_FOLDER=\"\\\"${SHARED_DATA_ESCAPED}\\\"\"")
+ENDIF(MSVC)
 
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
 SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY bin)
@@ -71,22 +137,37 @@ preferences/preferences.cpp
 
 ######## LINKER ########
 
-LINK_LIBRARIES(
-#boost_filesystem
-boost_system
+IF (MSVC)
+  LINK_LIBRARIES(
+    optimized Qt5Core debug Qt5Cored
+    optimized Qt5Gui debug Qt5Guid
+    optimized Qt5Widgets debug Qt5Widgetsd
+    optimized Qt5WebEngineWidgets debug Qt5WebEngineWidgetsd
+    optimized Qt5WebEngine debug Qt5WebEngined
+  )
+ELSE (MSVC)
+  LINK_LIBRARIES(
+    #boost_filesystem
+    boost_system
 
-#Qt5Quick
-Qt5Core
-Qt5Gui
-#Qt5Qml
-Qt5Widgets
-Qt5WebKitWidgets
-Qt5WebKit
-)
+    #Qt5Quick
+    Qt5Core
+    Qt5Gui
+    #Qt5Qml
+    Qt5Widgets
+    Qt5WebEngineWidgets
+    Qt5WebEngine
+  )
+ENDIF (MSVC)
 
 ######## EXECUTABLE ########
 
 ADD_EXECUTABLE(${PROJECT_NAME} ${GITKIT_SRC})
+
+IF (MSVC)
+	#GET_TARGET_PROPERTY(QtCore_location Qt5::Core LOCATION)
+	#TARGET_LINK_LIBRARIES(${PROJECT_NAME} QtCore_LIBRARIES)
+ENDIF (MSVC)
 
 ######## INSTALLATION ########
 

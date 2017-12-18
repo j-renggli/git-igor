@@ -4,6 +4,11 @@
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 
+// MS defines...
+#ifdef _WIN32
+#undef stderr
+#undef stdout
+#endif
 /*
 #include <QtCore/QThread>
 
