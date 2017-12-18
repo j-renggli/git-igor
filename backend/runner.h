@@ -109,6 +109,7 @@ class ActionRunner : public QObject
 	
 	public:
 		bool enqueue(const Process& process);
+		bool initialise();
 		
 	signals:
 		void notifyStartWork(const QString& command);

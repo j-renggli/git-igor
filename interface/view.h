@@ -6,9 +6,7 @@
 
 #include <backend/repository.h>
 
-//class QTreeView;
-class QWebView;
-//class QWebEngineView; // TODO: REPLACE QWebView with QWebEngineView !
+class QWebEngineView;
 
 namespace gitkit {
 
@@ -37,7 +35,7 @@ private:
 private:
 	//std::unique_ptr<QTreeView> index_;
 	//std::unique_ptr<QTreeView> workTree_;
-	std::unique_ptr<QWebView> view_;
+    QWebEngineView* view_;
 
 };
 

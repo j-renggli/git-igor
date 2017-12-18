@@ -1,0 +1,28 @@
+# Code
+*.c     text diff=cpp
+*.cmake text
+*.cpp   text diff=cpp
+*.css   text
+*.h     text diff=cpp
+*.hpp   text diff=cpp
+*.htm   text diff=html
+*.html  text diff=html
+*.inl   text diff=cpp
+*.js    text
+*.log   text
+*.py    text diff=python
+*.svg   text diff=html
+*.tex   text
+*.txt   text
+*.xml   text
+
+*.sh    text       eol=lf
+
+# Binary files
+*.gif   -text
+*.h5    -text
+*.ico   -text
+*.png   -text
+*.jpg   -text
+
+

@@ -47,6 +47,10 @@ bool Backend::initialise(QObject* mainWin)
 	ok = Actions::initialise(mainWin, resourcesPath_);
 	if (!ok)
 		return false;
+
+	ok = runner_.initialise();
+	if (!ok)
+		return false;
 		
 	// Saved data
 	QFileInfo repositories(configPath_, "repositories.json");

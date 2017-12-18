@@ -63,6 +63,8 @@ class Repository
 		
 	private:
 		Repository(const Repository& copy);
+
+        bool updateStatus(const QDir& path);
 		
 	private:
 		QDir root_;

@@ -5,9 +5,7 @@
 
 #include <QtCore/QObject>
 
-#include <QtWebKitWidgets/QWebFrame>
-#include <QtWebKitWidgets/QWebView>
-//#include <QtWebKitWidgets/QWebEngineView>
+#include <QtWebEngineWidgets/QWebEngineView>
 
 #include <backend/backend.h>
 
@@ -19,7 +17,7 @@ UIView::UIView()
 {
 	//index_.reset(new QTreeView(this));
 	//workTree_.reset(new QTreeView(this));
-	view_.reset(new QWebView(this));
+    view_ = new QWebEngineView(this);
 }
 
 UIView::~UIView()
@@ -28,8 +26,8 @@ UIView::~UIView()
 	
 void UIView::doConnect()
 {
-	QWebSettings::globalSettings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
-	connect(view_->page()->mainFrame(), &QWebFrame::javaScriptWindowObjectCleared, this, &UIView::onInjectBackend);
+    //QWebSettings::globalSettings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
+    //connect(view_->page()->mainFrame(), &QWebFrame::javaScriptWindowObjectCleared, this, &UIView::onInjectBackend);
 	view_->setHtml("<html>"
 
 "<head>"
@@ -55,7 +53,7 @@ void UIView::doConnect()
 
 void UIView::onInjectBackend()
 {
-	view_->page()->mainFrame()->addToJavaScriptWindowObject(QString("backend"), &Backend::instance());
+    //view_->page()->mainFrame()->addToJavaScriptWindowObject(QString("backend"), &Backend::instance());
 }
 
 void UIView::onShowDiff(const std::vector<Diff>& diff)

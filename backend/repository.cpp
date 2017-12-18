@@ -197,10 +197,13 @@ bool Repository::initialise()
 			return false;
 	}
 	
-	{
+    {
         GitProcess process(root_);
         process.run(GitProcess::RevParse, QStringList() << "--abbrev-ref" << (currentBranch_ + "@{upstream}"), true, false);
-        QString full = process.linesOut()[0];
+        QString full;
+        auto parts = process.linesOut();
+        if (!parts.empty())
+            full = parts[0];
 		if (!full.isEmpty())
 		{
 			auto first = full.indexOf("/");
@@ -384,19 +387,22 @@ bool Repository::updateStatus()
 		if (rename >= 0)
 			name = lines[i].mid(rename+4);
 			
-		QFileInfo path(name);
-			
-		// TODO: symlinks?
-		if (statWorkTree == FileStatus::ADDED && path.isDir())
-		{
-			// Look for files inside that directory
-			subdirs.push(path);
-			continue;
-		}
-			
-		//std::cout << path.toLatin1().data() << ": " << statIndex << ", " << statWorkTree << std::endl;
-		files_.insert(FileStatus(path, statIndex, statWorkTree, has_conflict));
-	}
+        QFileInfo path(name);
+        QFileInfo fullPath(root_.absolutePath() + QDir::separator() + name);
+        std::cout << "File " << name.toLatin1().data() << ": " << statWorkTree << ", " << fullPath.isDir() << std::endl;
+
+        // TODO: symlinks?
+        if (statWorkTree == FileStatus::ADDED && fullPath.isDir())
+        {
+            // Look for files inside that directory
+            std::cout << "Subdir " << name.toLatin1().data() << std::endl;
+            subdirs.push(path);
+            continue;
+        }
+
+        //std::cout << path.toLatin1().data() << ": " << statIndex << ", " << statWorkTree << std::endl;
+        files_.insert(FileStatus(path, statIndex, statWorkTree, has_conflict));
+    }
 	
 	// Now add files in new directories...
 	while (!subdirs.empty())
