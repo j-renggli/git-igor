@@ -7,33 +7,17 @@ Qt5WebEngineWidgets
 )
 
 SET(QT_DEPS
-Qt5WebEngine
-Qt5Network
-Qt5MultimediaWidgets
-Qt5PrintSupport
-Qt5OpenGL
-Qt5Multimedia
-Qt5Positioning
-Qt5Sensors
-Qt5Qml
-Qt5Quick
-Qt5Sql
-)
-
-SET(QT_EXT
-#icuin52
-#icuuc52
-#icudt52
 )
 
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
+SET(CMAKE_AUTOMOC ON)
+
 IF (MSVC)
-		SET(QT_PATH "C:\\Qt\\5.8\\msvc2015_64\\")
+	SET(QT_PATH "C:\\Qt\\5.8\\msvc2015_64\\")
 	SET(CMAKE_PREFIX_PATH ${QT_PATH})
 	LINK_DIRECTORIES("${QT_PATH}\\lib")
 	SET(CMAKE_INCLUDE_CURRENT_DIR ON)
-	SET(CMAKE_AUTOMOC ON)
 
 	SET(QT_USED ${QT_REQUIRED} ${QT_DEPS})
 	FOREACH(QTX ${QT_USED})
@@ -56,4 +40,14 @@ IF (MSVC)
 		)
 	ENDFOREACH()
 ENDIF (MSVC)
+
+FOREACH(QTX ${QT_REQUIRED})
+	FIND_PACKAGE(${QTX} REQUIRED)
+
+	IF (MSVC)
+		LINK_LIBRARIES(optimized ${QTX} debug "${QTX}d")
+	ELSE (MSVC)
+		LINK_LIBRARIES(${QTX})
+	ENDIF (MSVC)
+ENDFOREACH()
 

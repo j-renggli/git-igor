@@ -403,7 +403,7 @@ bool Repository::updateStatus()
         //std::cout << path.toLatin1().data() << ": " << statIndex << ", " << statWorkTree << std::endl;
         files_.insert(FileStatus(path, statIndex, statWorkTree, has_conflict));
     }
-	
+
 	// Now add files in new directories...
 	while (!subdirs.empty())
 	{
