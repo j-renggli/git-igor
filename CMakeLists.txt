@@ -62,6 +62,8 @@ mainwin.cpp
 ${GITKIT_BACKEND}
 ${GITKIT_INTERFACE}
 ${GITKIT_PREFS}
+
+${GITKIT_H}
 )
 
 ######## LINKER ########

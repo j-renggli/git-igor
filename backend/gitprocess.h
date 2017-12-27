@@ -40,7 +40,7 @@ private:
     QString stdErr_;
     QString stdOut_;
 
-    static const QRegExp s_rxLineEnd;
+    static const QRegularExpression s_rxLineEnd;
 };
 
 }

@@ -51,43 +51,61 @@ bool Repository::commit(const QString& message) const
 
 std::vector<Diff> Repository::diff(const FileStatus& file, bool indexed) const
 {
-	std::vector<Diff> diffs;
-	
-	// New file ? Whole file added !
-	FileStatus::eStatus workTreeStatus = file.status(false);
-	if (workTreeStatus == FileStatus::ADDED)
+    std::vector<Diff> diffs;
+
+    auto parseText = [](const QString& text, std::function<void(const QString&, const QString&,
+            const QString&, const QString&)> onLine)
+    {
+        static QRegularExpression rxLine("(([^\\r\\n])([^\\r\\n]*))?(\\r|\\r\\n|\\n)"); //, QRegularExpression::MultilineOption);
+        static const int groupLine = 1;
+        static const int groupPrefix = 2;
+        static const int groupNoPrefix = 3;
+        static const int groupNewLine = 4;
+
+        auto rx_it = rxLine.globalMatch(text);
+
+        while (rx_it.hasNext())
+        {
+            auto lineMatch = rx_it.next();
+            const QString line = lineMatch.captured(groupLine);
+            const QString prefix = lineMatch.captured(groupPrefix);
+            const QString noPrefix = lineMatch.captured(groupNoPrefix);
+            const QString newLine = lineMatch.captured(groupNewLine);
+
+            onLine(line, prefix, noPrefix, newLine);
+        }
+    };
+
+    // New file ? Whole file added !
+    FileStatus::eStatus workTreeStatus = file.status(false);
+    if (workTreeStatus == FileStatus::ADDED)
     {
         QFile disk_file( root_.filePath(file.path().filePath()) );
-		if ( disk_file.open(QIODevice::ReadOnly) )
-		{
-			QTextStream in(&disk_file);
-			
-			diffs.push_back(Diff(QFileInfo(), file.path()));
+        if ( disk_file.open(QIODevice::ReadOnly) )
+        {
+            QTextStream in(&disk_file);
+            diffs.push_back(Diff(QFileInfo(), file.path()));
+            parseText(in.readAll(), [&](const QString& line, const QString& prefix, const QString& noPrefix, const QString& newLine) {
+                diffs.back().pushNewLine(line, newLine);
+            });
+            disk_file.close();
+        }
 
-			while(!in.atEnd())
-			{
-                diffs.back().pushNewLine(in.readLine());
-			}
-
-			disk_file.close();
-		}
-		
-		return diffs;
-	}
+        return diffs;
+    }
     else if (workTreeStatus == FileStatus::DELETED || file.status(true) == FileStatus::DELETED) // 2nd for staged deleted files...
-	{
+    {
+        diffs.push_back(Diff(file.path(), file.path()));
         QString head("HEAD:");
         head += file.path().filePath();
 
         GitProcess process(root_);
         process.run(GitProcess::Show, QStringList() << head, true, false);
-        auto lines = process.linesOut();
-
-		diffs.push_back(Diff(file.path(), file.path()));
-		for (auto line : lines)
-            diffs.back().pushDeletedLine(line);
-		return diffs;
-	}
+        parseText(process.out(), [&](const QString& line, const QString& prefix, const QString& noPrefix, const QString& newLine) {
+            diffs.back().pushDeletedLine(line, newLine);
+        });
+        return diffs;
+    }
 
     QStringList args;
     if (indexed)
@@ -96,12 +114,11 @@ std::vector<Diff> Repository::diff(const FileStatus& file, bool indexed) const
 
     GitProcess process(root_);
     process.run(GitProcess::Diff, args, true, false);
-    auto lines = process.linesOut();
 
-	QFileInfo left, right;
-	QString context;
-	bool hasContext = false;
-	
+    QFileInfo left, right;
+    QString context;
+    bool hasContext = false;
+
     enum Previous
     {
         ADD,
@@ -110,45 +127,43 @@ std::vector<Diff> Repository::diff(const FileStatus& file, bool indexed) const
     };
     Previous lastOp = BOTH;
 
-	for (auto line : lines)
-	{
-		//std::cout << line.toLatin1().data() << std::endl;
-		QRegularExpressionMatch match = s_rxDiffFiles.match(line);
-		if (match.hasMatch())
-		{
-			left = match.captured(1);
-			right = match.captured(2);
-			context = "";
-			hasContext = false;
+    parseText(process.out(), [&](const QString& line, const QString& prefix, const QString& noPrefix, const QString& newLine) {
+        auto fileMatch = s_rxDiffFiles.match(line);
+        if (fileMatch.hasMatch())
+        {
+            left = fileMatch.captured(1);
+            right = fileMatch.captured(2);
+            context = "";
+            hasContext = false;
             diffs.push_back(Diff(left, right));
-			continue;
+            return;
         }
 
-        match = s_rxDiffContext.match(line);
-        if (match.hasMatch())
+        auto contextMatch = s_rxDiffContext.match(line);
+        if (contextMatch.hasMatch())
         {
-            int startDel = match.captured(1).toInt();
-            int countDel = match.captured(2).toInt();
-            int startAdd = match.captured(3).toInt();
-            int countAdd = match.captured(4).toInt();
-            QString funcName = match.captured(5);
+            int startDel = contextMatch.captured(1).toInt();
+            int countDel = contextMatch.captured(2).toInt();
+            int startAdd = contextMatch.captured(3).toInt();
+            int countAdd = contextMatch.captured(4).toInt();
+            QString funcName = contextMatch.captured(5);
             diffs.back().startContext(startDel, countDel, startAdd, countAdd, funcName);
             hasContext = true;
-            continue;
+            return;
         }
 
-		if ( !hasContext )
-			continue;
-			
+        if ( !hasContext )
+            return;
+
         Q_ASSERT(!diffs.empty());
-        if (line[0] == '-') {
-            diffs.back().pushDeletedLine(line.mid(1));
+        if (prefix[0] == '-') {
+            diffs.back().pushDeletedLine(noPrefix, newLine);
             lastOp = DEL;
-        } else if (line[0] == '+') {
-            diffs.back().pushNewLine(line.mid(1));
+        } else if (prefix[0] == '+') {
+            diffs.back().pushNewLine(noPrefix, newLine);
             lastOp = ADD;
-        } else if (line[0] == ' ') {
-            diffs.back().pushLine(line.mid(1));
+        } else if (prefix[0] == ' ') {
+            diffs.back().pushLine(noPrefix, newLine);
             lastOp = BOTH;
         } else if (line == "\\ No newline at end of file") {
             if (lastOp == ADD || lastOp == BOTH)
@@ -160,9 +175,9 @@ std::vector<Diff> Repository::diff(const FileStatus& file, bool indexed) const
             message << "Unexpected first character in line [" << line.toLatin1().data() << "]";
             throw std::runtime_error(message.str());
         }
-	}
-	
-	return diffs;
+    });
+
+    return diffs;
 }
 
 Process Repository::fetch(QString remote)
@@ -381,8 +396,8 @@ bool Repository::updateStatus()
 			statWorkTree = FileStatus::ADDED;
 		
 		// Unmerged status: DD, AU, UD, UA, DU, AA, UU
-		// ?? Untracked !! Ignored
-		
+        // ?? Untracked !! Ignored
+
 		QString name = lines[i].mid(3);
 		int rename = lines[i].indexOf(" -> ");
 		if (rename >= 0)

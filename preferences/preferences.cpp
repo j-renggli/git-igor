@@ -54,6 +54,15 @@ bool Preferences::generateCSS()
         stream << "  margin-right: 0.5em;" << endl;
         stream << "}" << endl << endl;
 
+        stream << "[extra] {" << endl;
+        stream << "  margin-left: 0.5em;" << endl;
+        stream << "  background: lightcyan;" << endl;
+        stream << "}" << endl << endl;
+
+        stream << "[extra]::after {" << endl;
+        stream << "  content: attr(extra);" << endl;
+        stream << "}" << endl << endl;
+
         stream << ".context {" << endl;
         stream << "  border: 1px solid lightcyan;" << endl;
         stream << "  margin-top: 1em;" << endl;

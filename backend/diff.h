@@ -15,22 +15,27 @@ public:
     };
 
 public:
-    DiffLine(LineType type, const QString& text, size_t lineNum, size_t lineAlt = -1)
+    DiffLine(LineType type, const QString& text, const QString& newLine, size_t lineNum, size_t lineAlt = -1)
         : type_(type)
         , line_(lineNum)
         , lineAlt_(lineAlt)
         , text_(text)
+        , newLine_(newLine)
     {}
 
     size_t line() const { return line_; }
     const QString& text() const { return text_; }
     const LineType type() const { return type_; }
 
+    bool missingNewLine() const { return newLine_.isEmpty(); }
+    void removeNewLine() { newLine_.clear(); }
+
 private:
     const LineType type_;
     const size_t line_;
     const size_t lineAlt_;
     const QString text_;
+    QString newLine_;
 };
 
 class DiffContext
@@ -47,7 +52,7 @@ public:
         , context_(context)
     {}
 
-    void push(DiffLine::LineType type, const QString& text);
+    void push(DiffLine::LineType type, const QString& text, const QString& newLine);
 
     QString context() const { return context_; }
 
@@ -55,8 +60,8 @@ public:
 
     std::vector<DiffLine> lines() const { return lines_; }
 
-    bool hasNewLineOld() const { return noNewlineOld_; }
-    bool hasNewLineNew() const { return noNewlineNew_; }
+    //bool hasNewLineOld() const { return noNewlineOld_; }
+    //bool hasNewLineNew() const { return noNewlineNew_; }
 
     size_t startLineOld() const { return startOld_; }
     size_t startLineNew() const { return startNew_; }
@@ -75,10 +80,12 @@ private:
     const QString fileNew_;
     const QString context_;
 
-    bool noNewlineOld_{false};
-    bool noNewlineNew_{false};
+    //bool noNewlineOld_{false};
+    //bool noNewlineNew_{false};
 
     std::vector<DiffLine> lines_;
+    size_t lastNew_{0};
+    size_t lastOld_{0};
 };
 
 class Diff
@@ -87,9 +94,9 @@ public:
     Diff(const QFileInfo& left, const QFileInfo& right);
 
     void startContext(size_t startLineLeft, size_t countLeft, size_t startLineRight, size_t countRight, const QString& context);
-    void pushLine(const QString& line);
-    void pushNewLine(const QString& line);
-    void pushDeletedLine(const QString& line);
+    void pushLine(const QString& line, const QString& newLine);
+    void pushNewLine(const QString& line, const QString& newLine);
+    void pushDeletedLine(const QString& line, const QString& newLine);
 
     std::pair<QFileInfo, QFileInfo> fileInfo() const { return std::make_pair(left_, right_); }
     DiffContext& currentContext() { return contexts_.back(); }

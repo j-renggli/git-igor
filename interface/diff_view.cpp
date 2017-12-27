@@ -29,12 +29,20 @@ void UIDiffView::doConnect()
 
     {
         QByteArray channelSetup = qwebchannel.readAll();
-        channelSetup.append("new QWebChannel(window.qt.webChannelTransport, function(channel) {"
-                            "  window.qtio = channel.objects.qtio;"
-                            "});");
         QWebEngineScript script;
         script.setName("qwebchannel.js");
         script.setSourceCode(channelSetup);
+        script.setWorldId(QWebEngineScript::MainWorld);
+        script.setInjectionPoint(QWebEngineScript::DocumentCreation);
+        profile_->scripts()->insert(script);
+    }
+
+    {
+        QWebEngineScript script;
+        script.setName("qtio.js");
+        script.setSourceCode("new QWebChannel(window.qt.webChannelTransport, function(channel) {"
+                             "  window.qtio = channel.objects.qtio;"
+                             "});\n");
         script.setWorldId(QWebEngineScript::MainWorld);
         script.setInjectionPoint(QWebEngineScript::DocumentCreation);
         script.setRunsOnSubFrames(false);
@@ -46,20 +54,6 @@ void UIDiffView::doConnect()
     diffio_ = new UIDiffIO(this, page());
     channel_->registerObject(QStringLiteral("qtio"), diffio_);
     page()->setWebChannel(channel_);
-/*
-    setHtml("<html>"
-
-"<head>"
-"<title>Git-Kit</title>"
-"</head>"
-
-"<body>"
-"Some text"
-"<button onclick=\"window.qtio.onStageHunk(1);\">with a vengeance</button>"
-"</body>"
-"</html>"
-);
-*/
     show();
 }
 
@@ -144,7 +138,10 @@ void UIDiffView::onShowDiff(const std::vector<Diff>& diff)
             }
             prefix += lineOld + lineNew + " " + lineType + "\n";
             code += "<code class=\"language-cpp" + classType + "\">";
-            code += line.text().toHtmlEscaped() + "</code>\n";
+            code += line.text().toHtmlEscaped();
+            if (line.missingNewLine())
+                code += "<span extra=\"No newline at end of file\"></span>";
+            code += "</code>\n";
         }
 
         html += "<div class=\"diff\"><pre class=\"info\">" + prefix + "</pre><pre>" + code + "</pre></div></div>";

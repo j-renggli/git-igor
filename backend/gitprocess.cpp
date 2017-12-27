@@ -2,10 +2,11 @@
 
 #include <QProcess>
 #include <QDataStream>
+#include <QtCore/QRegularExpression>
 
 namespace gitkit {
 
-const QRegExp GitProcess::s_rxLineEnd("[\r\n]");
+const QRegularExpression GitProcess::s_rxLineEnd("[\r\n]");
 
 GitProcess::GitProcess(const QDir& root)
 : root_(root.absolutePath())

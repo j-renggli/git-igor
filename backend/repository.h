@@ -28,7 +28,7 @@ class FileStatus
 		bool operator<(const FileStatus& rhs) const;
 		
 		QFileInfo path() const { return path_; }
-		eStatus status(bool indexed) const { return indexed ? index_ : workTree_; }
+        eStatus status(bool indexed) const { return indexed ? index_ : workTree_; }
 	
 	private:
 		QFileInfo path_; // Rename -> renamed path !?

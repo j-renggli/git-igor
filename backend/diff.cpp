@@ -13,33 +13,33 @@ void Diff::startContext(size_t startLineLeft, size_t countLeft, size_t startLine
     contexts_.push_back(DiffContext(startLineLeft, countLeft, startLineRight, countRight, left_.filePath(), right_.filePath(), context));
 }
 
-void Diff::pushLine(const QString& line)
+void Diff::pushLine(const QString& line, const QString& newLine)
 {
     if (contexts_.empty())
         startContext(0, 0, 0, 0, "");
 
-    contexts_.back().push(DiffLine::Normal, line);
+    contexts_.back().push(DiffLine::Normal, line, newLine);
 }
 
-void Diff::pushNewLine(const QString& line)
+void Diff::pushNewLine(const QString& line, const QString& newLine)
 {
     if (contexts_.empty())
         startContext(0, 0, 0, 0, "");
 
-    contexts_.back().push(DiffLine::Inserted, line);
+    contexts_.back().push(DiffLine::Inserted, line, newLine);
 }
 
-void Diff::pushDeletedLine(const QString& line)
+void Diff::pushDeletedLine(const QString& line, const QString& newLine)
 {
     if (contexts_.empty())
         startContext(0, 0, 0, 0, "");
 
-    contexts_.back().push(DiffLine::Deleted, line);
+    contexts_.back().push(DiffLine::Deleted, line, newLine);
 }
 
 ////////////////////////////////////////////////////////////////
 
-void DiffContext::push(DiffLine::LineType type, const QString& text)
+void DiffContext::push(DiffLine::LineType type, const QString& text, const QString& newLine)
 {
     size_t line = 0;
     size_t lineAlt(-1);
@@ -48,24 +48,30 @@ void DiffContext::push(DiffLine::LineType type, const QString& text)
     case DiffLine::Normal:
         line = startOld_ + countOld_++;
         lineAlt = startNew_ + countNew_++;
+        lastNew_ = lines_.size();
+        lastOld_ = lines_.size();
         break;
     case DiffLine::Inserted:
         line = startNew_ + countNew_++;
+        lastNew_ = lines_.size();
         break;
     case DiffLine::Deleted:
         line = startOld_ + countOld_++;
+        lastOld_ = lines_.size();
         break;
     }
 
-    lines_.push_back(DiffLine(type, text, line, lineAlt));
+    lines_.push_back(DiffLine(type, text, newLine, line, lineAlt));
 }
 
 void DiffContext::setNoNewline(bool sideNew)
 {
     if (sideNew)
-        noNewlineNew_ = true;
-    else
-        noNewlineOld_ = true;
+    {
+        lines_.at(lastNew_).removeNewLine();
+    } else {
+        lines_.at(lastOld_).removeNewLine();
+    }
 }
 
 QString DiffContext::toPatch() const
