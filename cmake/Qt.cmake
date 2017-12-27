@@ -1,9 +1,10 @@
 SET(QT_REQUIRED
 Qt5Core
 Qt5Gui
-Qt5Widgets
+Qt5WebChannel
 Qt5WebEngine
 Qt5WebEngineWidgets
+Qt5Widgets
 )
 
 SET(QT_DEPS

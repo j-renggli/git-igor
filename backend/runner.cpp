@@ -4,8 +4,6 @@
 
 #include <iostream>
 
-#include <gkassert.h>
-
 namespace gitkit {
 
 Process::Process(const std::shared_ptr<ICommand>& command, bool showDialog)
@@ -49,7 +47,7 @@ ActionWorker::ActionWorker()
 
 void ActionWorker::enqueue(const Process& process)
 {
-	ASSERT(!process.empty());
+    Q_ASSERT(!process.empty());
 		
 	std::lock_guard<std::mutex> lock(s_mutex);
 	

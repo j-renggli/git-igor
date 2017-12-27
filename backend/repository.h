@@ -48,6 +48,7 @@ class Repository
 		bool commit(const QString& message) const;
 		std::vector<Diff> diff(const FileStatus& file, bool indexed) const;
 		void stage(const FileStatus& file) const;
+        void stage(const DiffContext& context) const;
 		void unstage(const FileStatus& file) const;
 		bool updateStatus();
 		

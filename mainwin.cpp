@@ -14,8 +14,6 @@
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QVBoxLayout>
 
-#include <gkassert.h>
-
 #include <backend/actions.h>
 #include <backend/backend.h>
 #include <backend/repositorymanager.h>
@@ -23,7 +21,7 @@
 #include <interface/progress.h>
 #include <interface/repositories.h>
 #include <interface/staging.h>
-#include <interface/view.h>
+#include <interface/diff_view.h>
 
 #include <preferences/preferences.h>
 
@@ -47,41 +45,41 @@ MainWin::~MainWin()
 bool MainWin::initialise()
 {
 	auto& backend = Backend::instance();
-	if (!backend.initialise(this))
-		return false;
-		
-	Preferences::instance().generateCSS();
-		
-  pMainView_ = new QTabWidget;
-  setCentralWidget(pMainView_);
+    if (!backend.initialise(this))
+        return false;
 
-  auto tab_layout = new QVBoxLayout;
-  pMainView_->setLayout(tab_layout);
-	
-	view_ = new UIView;
-	view_->doConnect();
-	
-	progress_ = new UIProgress;
-	progress_->initialise();
-	
-	repositories_ = new UIRepositories;
-	repositories_->initialise();
-	
-	staging_ = new UIStaging;
-	staging_->initialise();
-	addDockWidget(Qt::LeftDockWidgetArea, staging_);
+    Preferences::instance().generateCSS();
 
-	tab_layout->addWidget(view_);
-	
-  createActions();
-  updateMenu();
-  updateToolbar();
-	
-	connect(staging_, SIGNAL(onShowDiff(const std::vector<Diff>&)), view_, SLOT(onShowDiff(const std::vector<Diff>&)));
+    pMainView_ = new QTabWidget;
+    setCentralWidget(pMainView_);
+
+    auto tab_layout = new QVBoxLayout;
+    pMainView_->setLayout(tab_layout);
+
+    view_ = new UIDiffView;
+    view_->doConnect();
+
+    progress_ = new UIProgress;
+    progress_->initialise();
+
+    repositories_ = new UIRepositories;
+    repositories_->initialise();
+
+    staging_ = new UIStaging;
+    staging_->initialise();
+    addDockWidget(Qt::LeftDockWidgetArea, staging_);
+
+    tab_layout->addWidget(view_);
+
+    createActions();
+    updateMenu();
+    updateToolbar();
+
+    connect(staging_, SIGNAL(onShowDiff(const std::vector<Diff>&)), view_, SLOT(onShowDiff(const std::vector<Diff>&)));
 
     Actions::getAction(Actions::aFileRefresh)->trigger();
-	
-	return true;
+
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////

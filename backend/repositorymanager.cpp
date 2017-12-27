@@ -4,10 +4,6 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
-#include <iostream>
-
-#include <gkassert.h>
-
 namespace gitkit {
 
 RepositoryManager RepositoryManager::s_repositories;
@@ -19,7 +15,7 @@ RepositoryManager::RepositoryManager()
 
 RepositoryManager::RepositoryManager(const RepositoryManager& rhs)
 {
-	ASSERT(false);
+    Q_ASSERT(false);
 }
 
 RepositoryManager& RepositoryManager::instance()
@@ -115,8 +111,8 @@ bool RepositoryManager::load()
 	
 	QJsonDocument json(QJsonDocument::fromJson(file.readAll()));
 	QJsonObject main = json.object();
-	int version = main["version"].toInt();
-	ASSERT(version == 1);
+    int version = main["version"].toInt();
+    Q_ASSERT(version == 1);
 	if (version != 1)
 		return false;
 	

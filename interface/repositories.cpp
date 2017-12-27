@@ -6,7 +6,6 @@
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QTreeView>
 
-#include <gkassert.h>
 #include <backend/repositorymanager.h>
 
 #include "repo_add.h"

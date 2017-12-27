@@ -1,13 +1,9 @@
 #include "backend.h"
 
-#include <iostream>
-
 #include <QtWidgets/QAction>
 
 #include "actions.h"
 #include "repositorymanager.h"
-
-#include "../gkassert.h"
 
 namespace gitkit {
 
@@ -31,17 +27,17 @@ const Repository& Backend::currentRepo() const
 bool Backend::initialise(QObject* mainWin)
 {
 	if (!resourcesPath_.exists())
-	{
-		ASSERT(false);
+    {
+        Q_ASSERT(false);
 		return false;
 	}
 	const QString config(".config/gitkit");
 	
 	configPath_ = QDir::home();
-	ASSERT(configPath_.exists());
+    Q_ASSERT(configPath_.exists());
 	configPath_.mkpath(config);
 	bool ok = configPath_.cd(config);
-	ASSERT(ok);
+    Q_ASSERT(ok);
 	
 	// Initialise actions
 	ok = Actions::initialise(mainWin, resourcesPath_);
@@ -82,9 +78,9 @@ bool Backend::initialise(QObject* mainWin)
 	return ok;
 }
 
-void Backend::workStarted(const QString& command) { std::cout << command.toLatin1().data() << std::endl; }
-void Backend::workEnded() { std::cout << "Work ended" << std::endl; }
-void Backend::workOutput(const QString& output) { std::cout << output.toLatin1().data() << std::endl; }
+void Backend::workStarted(const QString& command) { }//std::cout << command.toLatin1().data() << std::endl; }
+void Backend::workEnded() { }//std::cout << "Work ended" << std::endl; }
+void Backend::workOutput(const QString& output) { }//std::cout << output.toLatin1().data() << std::endl; }
 	
 void Backend::onRefresh()
 {
@@ -104,8 +100,7 @@ void Backend::onFetch()
 	if (repos.empty())
 		return;
 		
-	Process proc = repos.active().fetch();
-	std::cout << proc.empty() << std::endl;
+    Process proc = repos.active().fetch();
 	if (!proc.empty())
 		runner_.enqueue(proc);
 }
@@ -116,8 +111,7 @@ void Backend::onPull()
 	if (repos.empty())
 		return;
 		
-	Process proc = repos.active().pull();
-	std::cout << proc.empty() << std::endl;
+    Process proc = repos.active().pull();
 	if (!proc.empty())
 		runner_.enqueue(proc);
 }
@@ -138,7 +132,7 @@ QFileInfo Backend::style() const
 {
 	// TODO: Restore which style from .config...
 	QDir styles = resourcesPath_;
-	ASSERT(styles.exists("res/styles"));
+    Q_ASSERT(styles.exists("res/styles"));
 	if (!styles.cd("res/styles"))
 		return QFileInfo();
 	return QFileInfo(styles.filePath("standard.qss"));

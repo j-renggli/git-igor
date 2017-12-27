@@ -50,28 +50,18 @@ SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY bin)
 ######## SOURCE CODE ########
 
 FILE(GLOB GITKIT_H *.h)
+FILE(GLOB GITKIT_BACKEND backend/*.cpp)
+FILE(GLOB GITKIT_INTERFACE interface/*.cpp)
+FILE(GLOB GITKIT_PREFS preferences/*.cpp)
 
 SET(GITKIT_SRC
 #commandline.cpp
 gitkit.cpp
 mainwin.cpp
 
-backend/actions.cpp
-backend/backend.cpp
-backend/diff.cpp
-backend/gitprocess.cpp
-backend/repository.cpp
-backend/repositorymanager.cpp
-backend/runaction.cpp
-backend/runner.cpp
-
-interface/progress.cpp
-interface/repo_add.cpp
-interface/repositories.cpp
-interface/staging.cpp
-interface/view.cpp
-
-preferences/preferences.cpp
+${GITKIT_BACKEND}
+${GITKIT_INTERFACE}
+${GITKIT_PREFS}
 )
 
 ######## LINKER ########

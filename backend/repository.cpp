@@ -1,13 +1,10 @@
 #include "repository.h"
 
-#include <iostream>
 #include <stack>
 #include <sstream>
 
 #include <QtCore/QRegularExpression>
 #include <QtCore/QTextStream>
-
-#include <gkassert.h>
 
 #include "gitprocess.h"
 #include "runaction.h"
@@ -40,7 +37,7 @@ Repository::Repository(const QString& name, const QDir& root)
 
 Repository::Repository(const Repository& copy)
 {
-	ASSERT(false);
+    Q_ASSERT(false);
 }
 
 bool Repository::commit(const QString& message) const
@@ -77,7 +74,7 @@ std::vector<Diff> Repository::diff(const FileStatus& file, bool indexed) const
 		
 		return diffs;
 	}
-	else if (workTreeStatus == FileStatus::DELETED)
+    else if (workTreeStatus == FileStatus::DELETED || file.status(true) == FileStatus::DELETED) // 2nd for staged deleted files...
 	{
         QString head("HEAD:");
         head += file.path().filePath();
@@ -93,7 +90,6 @@ std::vector<Diff> Repository::diff(const FileStatus& file, bool indexed) const
 	}
 
     QStringList args;
-    args << "--no-color";
     if (indexed)
         args << "--cached";
     args << file.path().filePath();
@@ -144,7 +140,7 @@ std::vector<Diff> Repository::diff(const FileStatus& file, bool indexed) const
 		if ( !hasContext )
 			continue;
 			
-		ASSERT(!diffs.empty());
+        Q_ASSERT(!diffs.empty());
         if (line[0] == '-') {
             diffs.back().pushDeletedLine(line.mid(1));
             lastOp = DEL;
@@ -294,7 +290,6 @@ bool Repository::push(QString remote, QString branch)
 
     GitProcess process(root_);
     return process.run(GitProcess::Push, QStringList() << remote << branch, true, false);
-    std::cout << "Push: [" << process.out().toLatin1().data() << "]" << std::endl;
 	return true;
 }
 
@@ -318,6 +313,12 @@ void Repository::stage(const FileStatus& file) const
     process.run(command, QStringList() << file.path().filePath(), false, false);
 }
 
+void Repository::stage(const DiffContext& context) const
+{
+    GitProcess process(root_);
+    process.runWithInput(GitProcess::Apply, QStringList() << "--cached" << "-", context.toPatch().toUtf8(), true, true);
+}
+
 void Repository::unstage(const FileStatus& file) const
 {
     GitProcess process(root_);
@@ -327,7 +328,7 @@ void Repository::unstage(const FileStatus& file) const
 bool Repository::updateStatus()
 {
     GitProcess process(root_);
-    process.run(GitProcess::Status, QStringList() << "--porcelain" << "-b", true, false);
+    process.run(GitProcess::Status, QStringList() << "-b", true, false);
     QString output = process.out();
 
 	// ?
@@ -389,18 +390,15 @@ bool Repository::updateStatus()
 			
         QFileInfo path(name);
         QFileInfo fullPath(root_.absolutePath() + QDir::separator() + name);
-        std::cout << "File " << name.toLatin1().data() << ": " << statWorkTree << ", " << fullPath.isDir() << std::endl;
 
         // TODO: symlinks?
         if (statWorkTree == FileStatus::ADDED && fullPath.isDir())
         {
             // Look for files inside that directory
-            std::cout << "Subdir " << name.toLatin1().data() << std::endl;
             subdirs.push(path);
             continue;
         }
 
-        //std::cout << path.toLatin1().data() << ": " << statIndex << ", " << statWorkTree << std::endl;
         files_.insert(FileStatus(path, statIndex, statWorkTree, has_conflict));
     }
 
@@ -408,7 +406,7 @@ bool Repository::updateStatus()
 	while (!subdirs.empty())
 	{
         GitProcess process(root_);
-        process.run(GitProcess::Status, QStringList() << (subdirs.top().filePath() + "*") << "--porcelain", true, false);
+        process.run(GitProcess::Status, QStringList() << (subdirs.top().filePath() + "*"), true, false);
         lines = process.linesOut();
 
 		subdirs.pop();

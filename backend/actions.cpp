@@ -1,7 +1,5 @@
 #include "actions.h"
 
-#include <gkassert.h>
-
 #include <QtCore/QDir>
 #include <QtWidgets/QAction>
 
@@ -14,7 +12,7 @@ QAction* Actions::getAction(eAction id)
 	auto it = actions_.find(id);
 	if (it == actions_.end())
 	{
-		ASSERT(false);
+        Q_ASSERT(false);
 		return nullptr;
 	}
 		
@@ -23,16 +21,16 @@ QAction* Actions::getAction(eAction id)
 
 bool Actions::initialise(QObject* parent, const QDir& dataPath)
 {
-	ASSERT(parent);
+    Q_ASSERT(parent);
 	if (!parent)
 		return false;
 		
-	ASSERT(actions_.empty());
+    Q_ASSERT(actions_.empty());
 	if (!actions_.empty())
 		return false;
 	
 	QDir icons = dataPath;
-	ASSERT(icons.exists("res/icons"));
+    Q_ASSERT(icons.exists("res/icons"));
 	if (!icons.cd("res/icons"))
 		return false;
 	

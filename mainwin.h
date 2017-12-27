@@ -18,35 +18,35 @@ namespace gitkit {
 class UIProgress;
 class UIRepositories;
 class UIStaging;
-class UIView;
+class UIDiffView;
 
 class MainWin : public QMainWindow
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
-  MainWin();
-  ~MainWin();
+    MainWin();
+    ~MainWin();
 
-	bool initialise();
-	
-	QFileInfo style() const;
-	
-private:
-  bool createActions();
+    bool initialise();
 
-  bool updateMenu();
-  bool updateToolbar();
+    QFileInfo style() const;
 
 private:
-  QToolBar* pToolbar_;
+    bool createActions();
 
-  QTabWidget* pMainView_;
+    bool updateMenu();
+    bool updateToolbar();
 
-	UIProgress* progress_;
-	UIView* view_;
-	UIStaging* staging_;
-	UIRepositories* repositories_;
+private:
+    QToolBar* pToolbar_;
+
+    QTabWidget* pMainView_;
+
+    UIProgress* progress_;
+    UIDiffView* view_;
+    UIStaging* staging_;
+    UIRepositories* repositories_;
 };
 
 }

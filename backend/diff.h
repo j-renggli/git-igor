@@ -36,17 +36,22 @@ private:
 class DiffContext
 {
 public:
-    DiffContext(size_t startOld, size_t countOld, size_t startNew, size_t countNew, const QString& context)
+    DiffContext(size_t startOld, size_t countOld, size_t startNew, size_t countNew,
+                const QString& oldFile, const QString& newFile, const QString& context)
         : startOld_(startOld)
         , expectedOld_(countOld)
         , startNew_(startNew)
         , expectedNew_(countNew)
+        , fileOld_(oldFile)
+        , fileNew_(newFile)
         , context_(context)
     {}
 
     void push(DiffLine::LineType type, const QString& text);
 
     QString context() const { return context_; }
+
+    QString toPatch() const;
 
     std::vector<DiffLine> lines() const { return lines_; }
 
@@ -65,6 +70,9 @@ private:
     size_t startNew_;
     size_t expectedNew_;
     size_t countNew_{0};
+
+    const QString fileOld_;
+    const QString fileNew_;
     const QString context_;
 
     bool noNewlineOld_{false};

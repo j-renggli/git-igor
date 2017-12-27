@@ -5,11 +5,10 @@
 
 #include <QtCore/QObject>
 
+#include <QtWebEngineWidgets/QWebEngineProfile>
 #include <QtWebEngineWidgets/QWebEngineView>
 
 #include <backend/backend.h>
-
-#include <gkassert.h>
 
 namespace gitkit {
 
@@ -26,6 +25,15 @@ UIView::~UIView()
 	
 void UIView::doConnect()
 {
+    // Set-up web channel
+    QFile qwebchannel(":/qtwebchannel/qwebchannel.js");
+    if (!qwebchannel.open(QIODevice::ReadOnly) )
+        throw std::runtime_error("Missing web channel file");
+    {
+        QByteArray script = qwebchannel.readAll();
+        script.append("\nnew QWebChannel(window.qt.webChannelTransport");
+    }
+
     //QWebSettings::globalSettings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
     //connect(view_->page()->mainFrame(), &QWebFrame::javaScriptWindowObjectCleared, this, &UIView::onInjectBackend);
 	view_->setHtml("<html>"
@@ -60,7 +68,7 @@ void UIView::onShowDiff(const std::vector<Diff>& diff)
 {
 	if (diff.empty())
 	{
-		ASSERT(false);
+        Q_ASSERT(false);
 		view_->setHtml("");
 		return;
 	}

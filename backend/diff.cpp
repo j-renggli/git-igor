@@ -10,7 +10,7 @@ Diff::Diff(const QFileInfo& left, const QFileInfo& right)
 
 void Diff::startContext(size_t startLineLeft, size_t countLeft, size_t startLineRight, size_t countRight, const QString& context)
 {
-    contexts_.push_back(DiffContext(startLineLeft, countLeft, startLineRight, countRight, context));
+    contexts_.push_back(DiffContext(startLineLeft, countLeft, startLineRight, countRight, left_.filePath(), right_.filePath(), context));
 }
 
 void Diff::pushLine(const QString& line)
@@ -66,6 +66,39 @@ void DiffContext::setNoNewline(bool sideNew)
         noNewlineNew_ = true;
     else
         noNewlineOld_ = true;
+}
+
+QString DiffContext::toPatch() const
+{
+    QString patch = QString("diff --git a/%1 b/%2\n"
+                            "--- a/%1\n"
+                            "+++ b/%2\n"
+                            "@@ -%3,%4 +%5,%6 @@\n")
+            .arg(fileOld_)
+            .arg(fileNew_)
+            .arg(startOld_)
+            .arg(countOld_)
+            .arg(startNew_)
+            .arg(countNew_);
+
+    for (const auto& line : lines_)
+    {
+        QString type;
+        switch (line.type())
+        {
+        case DiffLine::Normal:
+            type = " ";
+            break;
+        case DiffLine::Inserted:
+            type = "+";
+            break;
+        case DiffLine::Deleted:
+            type = "-";
+            break;
+        }
+        patch += QString("%1%2\n").arg(type).arg(line.text());
+    }
+    return patch;
 }
 
 }
