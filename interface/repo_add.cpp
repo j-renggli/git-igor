@@ -127,7 +127,8 @@ void UIRepoAdd::onNameModified(const QString& text)
 	
 void UIRepoAdd::onPathModified(const QString& text)
 {
-	updateUI();}
+	updateUI();
+}
 
 void UIRepoAdd::onRemoteModified(const QString& text)
 {

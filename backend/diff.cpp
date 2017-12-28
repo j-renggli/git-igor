@@ -102,7 +102,10 @@ QString DiffContext::toPatch() const
             type = "-";
             break;
         }
-        patch += QString("%1%2\n").arg(type).arg(line.text());
+        auto newLine = line.newLine();
+        patch += QString("%1%2%3").arg(type).arg(line.text()).arg(newLine);
+        if (newLine.isEmpty())
+            patch += "\n\\ No newline at end of file\n";
     }
     return patch;
 }

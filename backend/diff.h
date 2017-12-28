@@ -26,6 +26,7 @@ public:
     size_t line() const { return line_; }
     const QString& text() const { return text_; }
     const LineType type() const { return type_; }
+    QString newLine() const { return newLine_; }
 
     bool missingNewLine() const { return newLine_.isEmpty(); }
     void removeNewLine() { newLine_.clear(); }

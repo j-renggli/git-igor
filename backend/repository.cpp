@@ -56,7 +56,7 @@ std::vector<Diff> Repository::diff(const FileStatus& file, bool indexed) const
     auto parseText = [](const QString& text, std::function<void(const QString&, const QString&,
             const QString&, const QString&)> onLine)
     {
-        static QRegularExpression rxLine("(([^\\r\\n])([^\\r\\n]*))?(\\r|\\r\\n|\\n)"); //, QRegularExpression::MultilineOption);
+        static QRegularExpression rxLine("((.)(.*))?(\\r\\n|\\n)"); //, QRegularExpression::MultilineOption);
         static const int groupLine = 1;
         static const int groupPrefix = 2;
         static const int groupNoPrefix = 3;

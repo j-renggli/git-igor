@@ -72,6 +72,7 @@ void UIDiffView::onShowDiff(const std::vector<Diff>& diff)
     if (diff.empty())
     {
         Q_ASSERT(false);
+        // This can happen if file was reset before a refresh happened
         setHtml("");
         return;
     }
@@ -144,7 +145,7 @@ void UIDiffView::onShowDiff(const std::vector<Diff>& diff)
             }
             prefix += lineOld + lineNew + " " + lineType + "\n";
             code += "<code class=\"language-cpp" + classType + "\">";
-            code += line.text().toHtmlEscaped();
+            code += line.text().toHtmlEscaped().replace("\r", "<span extra=\"CR\"></span>");
             if (line.missingNewLine())
                 code += "<span extra=\"No newline at end of file\"></span>";
             code += "</code>\n";
