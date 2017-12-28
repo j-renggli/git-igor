@@ -1,5 +1,6 @@
 #include "repositories.h"
 
+#include <QtCore/QDebug>
 #include <QtWidgets/QGridLayout>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
@@ -27,7 +28,7 @@ void UIRepositories::initialise()
 	auto layout = new QGridLayout;
 	
 	int leftCol = 0;
-	int leftSize = 4;
+    int leftSize = 4;
 	int rightCol = leftCol+leftSize;
 	int rightSize = 3;
 	
@@ -43,7 +44,7 @@ void UIRepositories::initialise()
 		repoDel_ = new QPushButton("Remove");
 		layout->addWidget(repoDel_, btnRow, btnCol++, 1, 1);
 		repoDown_ = new QPushButton("Down");
-		layout->addWidget(repoDown_, btnRow, btnCol++, 1, 1);
+        layout->addWidget(repoDown_, btnRow, btnCol++, 1, 1);
 		repoUp_ = new QPushButton("Up");
 		layout->addWidget(repoUp_, btnRow, btnCol++, 1, 1);
 		repoAdd_ = new QPushButton("Add");
@@ -84,7 +85,9 @@ void UIRepositories::initialise()
 	connect(repositories_, &QTreeView::clicked, this, &UIRepositories::onSelecting);
 	connect(cancel_, &QPushButton::clicked, this, &UIRepositories::onCancel);
 	connect(commit_, &QPushButton::clicked, this, &UIRepositories::onCommit);
-	connect(repoAdd_, &QPushButton::clicked, this, &UIRepositories::onAddRepo);
+    connect(repoAdd_, &QPushButton::clicked, this, &UIRepositories::onAddRepo);
+    connect(repoDel_, &QPushButton::clicked, this, &UIRepositories::onDeleteRepo);
+    connect(repositories_, &QTreeView::doubleClicked, this, &UIRepositories::onActivateRepo);
 	
 	repoAddUI_ = new UIRepoAdd(true);
 	repoAddUI_->initialise();
@@ -101,6 +104,19 @@ void UIRepositories::onAddRepo()
 		if (manager.add(repoAddUI_->name(), repoAddUI_->path()))
 			updateUI();
 	}
+}
+
+void UIRepositories::onDeleteRepo()
+{
+    auto& manager = RepositoryManager::instance();
+    if (manager.remove(selected_))
+        updateUI();
+}
+
+void UIRepositories::onActivateRepo(const QModelIndex& index)
+{
+    auto& manager = RepositoryManager::instance();
+    manager.setActive(index.row());
 }
 
 void UIRepositories::onCancel()

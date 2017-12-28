@@ -18,8 +18,10 @@ class RepositoryManager : public QAbstractItemModel {
 		
 		Repository& active() { return *repositories_.at(active_); }
 		Repository& at(size_t index) { return *repositories_.at(index); } // TODO: UUID !?
+        bool setActive(size_t index);
 		
 		bool add(const QString& name, const QDir& root);
+        bool remove(size_t index);
 		
 		bool initialise(const QFileInfo& storagePath);
 		//void reload();

@@ -35,14 +35,14 @@ bool Actions::initialise(QObject* parent, const QDir& dataPath)
 		return false;
 	
 	{
-		auto action = new QAction(QIcon(icons.filePath("quit.png")), "&Quit", parent);
+        auto action = new QAction(QIcon(icons.filePath("quit.svg")), "&Quit", parent);
 		action->setShortcuts(QKeySequence::Quit);
 		action->setStatusTip("Quit the application");
 		actions_[aFileQuit] = action;
 	}
 	
 	{
-		auto action = new QAction(QIcon(icons.filePath("sync.png")), "Refresh", parent);
+        auto action = new QAction(QIcon(icons.filePath("sync.svg")), "Refresh", parent);
 		action->setShortcuts(QKeySequence::Refresh);
 		action->setStatusTip("Refresh the UI");
 		actions_[aFileRefresh] = action;
@@ -51,31 +51,31 @@ bool Actions::initialise(QObject* parent, const QDir& dataPath)
 	// aGitCommit
 	
 	{
-		auto action = new QAction(QIcon(icons.filePath("fetch.png")), "Fetch", parent);
+        auto action = new QAction(QIcon(icons.filePath("fetch.svg")), "Fetch", parent);
 		action->setStatusTip("Git Fetch from default remote");
 		actions_[aGitFetch] = action;
 	}
 	
 	{
-		auto action = new QAction(QIcon(icons.filePath("pull.png")), "Pull", parent);
+        auto action = new QAction(QIcon(icons.filePath("pull.svg")), "Pull", parent);
 		action->setStatusTip("Git Pull with default settings");
 		actions_[aGitPull] = action;
 	}
 	
 	{
-		auto action = new QAction(QIcon(icons.filePath("push.png")), "Push", parent);
+        auto action = new QAction(QIcon(icons.filePath("push.svg")), "Push", parent);
 		action->setStatusTip("Git Push with default settings");
 		actions_[aGitPush] = action;
 	}
 	
 	// Repositories view
 	{
-		auto action = new QAction(QIcon(icons.filePath("repo.png")), "Edit", parent);
+        auto action = new QAction(QIcon(icons.filePath("repo.svg")), "Edit", parent);
 		action->setStatusTip("Edit repositories");
 		actions_[aRepoEdit] = action;
 	}
 
-  return true;
+    return true;
 }
 /*
 QIcon Actions::loadSVG(const QString& path)

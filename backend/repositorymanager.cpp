@@ -35,6 +35,25 @@ bool RepositoryManager::add(const QString& name, const QDir& root)
 	endResetModel();
 }
 
+bool RepositoryManager::remove(size_t index)
+{
+    if (index >= repositories_.size())
+        return false;
+
+    if (active_ >= index)
+        --active_;
+    repositories_.erase(repositories_.begin() + index);
+    return true;
+}
+
+bool RepositoryManager::setActive(size_t index)
+{
+    if (index >= repositories_.size())
+        return false;
+    active_ = index;
+    return true;
+}
+
 QVariant RepositoryManager::data(const QModelIndex &index, int role) const
 {
 	if (role == Qt::DisplayRole)

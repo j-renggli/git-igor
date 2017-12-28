@@ -199,8 +199,14 @@ Process Repository::fetch(QString remote)
 
 bool Repository::initialise()
 {
-	// Current branch
-	{
+    // Check if repository is valid
+    if (!root_.exists())
+    {
+        return false;
+    }
+
+    // Current branch
+    {
         GitProcess process(root_);
         process.run(GitProcess::RevParse, QStringList() << "--abbrev-ref" << "HEAD", true, false);
         currentBranch_ = process.linesOut()[0];

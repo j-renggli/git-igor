@@ -49,6 +49,8 @@ public slots:
 	void onCancel();
 	void onCommit();
 	void onAddRepo();
+    void onDeleteRepo();
+    void onActivateRepo(const QModelIndex& index);
 	
 	void updateUI();
 	
@@ -59,7 +61,7 @@ private:
 	QPushButton* repoDel_;
 	QPushButton* repoAdd_;
 	QPushButton* repoUp_;
-	QPushButton* repoDown_;
+    QPushButton* repoDown_;
 	QLineEdit* name_;
 	QLineEdit* path_;
 	QPushButton* pathButton_;
