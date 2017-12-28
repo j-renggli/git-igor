@@ -40,9 +40,16 @@ void UIDiffView::doConnect()
     {
         QWebEngineScript script;
         script.setName("qtio.js");
-        script.setSourceCode("new QWebChannel(window.qt.webChannelTransport, function(channel) {"
-                             "  window.qtio = channel.objects.qtio;"
-                             "});\n");
+        script.setSourceCode("new QWebChannel(window.qt.webChannelTransport, function(channel) {\n"
+                             "  window.qtio = channel.objects.qtio;\n"
+                             "  window.wrappers = {\n"
+                             "    stageHunk: function(index) {\n"
+                             "      var name='diff_'+index;\n"
+                             "      document.getElementById(name).classList.add('hidden');\n"
+                             "      window.qtio.onStageHunk(index);\n"
+                             "    }\n"
+                             "  }\n"
+                             "});");
         script.setWorldId(QWebEngineScript::MainWorld);
         script.setInjectionPoint(QWebEngineScript::DocumentCreation);
         script.setRunsOnSubFrames(false);
@@ -101,15 +108,14 @@ void UIDiffView::onShowDiff(const std::vector<Diff>& diff)
     html += "</h1>";
 
     for (size_t i = 0; i < contexts.size(); ++i)
-    //for (const auto& context : contexts)
     {
+        const QString diffIndex = QString::number(i);
         const auto& context = contexts[i];
-        html += "<div class='context'>\n<h2>";
+        html += "<div class='context' id='diff_" + diffIndex + "'>\n<h2>";
         if (context.context().isEmpty())
             html += "Global context";
         else
             html += context.context();
-        html += "<button onclick=\"window.qtio.onStageHunk(" + QString::number(i) + ");\">Stage hunk</button>";
         html += "</h2>\n";
 
         QString prefix;
@@ -144,7 +150,9 @@ void UIDiffView::onShowDiff(const std::vector<Diff>& diff)
             code += "</code>\n";
         }
 
-        html += "<div class=\"diff\"><pre class=\"info\">" + prefix + "</pre><pre>" + code + "</pre></div></div>";
+        QString hunk = "<button onclick=\"window.wrappers.stageHunk(" + diffIndex + ");\">Stage hunk</button>";
+
+        html += "<div class=\"diff\"><pre class=\"info\">" + prefix + "</pre><pre>" + code + "</pre></div>" + hunk + "</div>";
     }
 
     html += "</body></html>";

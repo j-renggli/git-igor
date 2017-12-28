@@ -54,6 +54,10 @@ bool Preferences::generateCSS()
         stream << "  margin-right: 0.5em;" << endl;
         stream << "}" << endl << endl;
 
+        stream << ".hidden {" << endl;
+        stream << "  display: none;" << endl;
+        stream << "}" << endl << endl;
+
         stream << "[extra] {" << endl;
         stream << "  margin-left: 0.5em;" << endl;
         stream << "  background: lightcyan;" << endl;
