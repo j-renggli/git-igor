@@ -10,7 +10,7 @@ int main(int argc, char* argv[])
 {
   QApplication app(argc, argv);
 	
-  gitkit::MainWin window;
+  gitigor::MainWin window;
 	window.resize(1024, 768);
   //window.setMinimumSize(400, 300);
 	if (!window.initialise())

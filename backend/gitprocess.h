@@ -3,7 +3,7 @@
 #include <QDir>
 #include <QString>
 
-namespace gitkit {
+namespace gitigor {
 
 class GitProcess {
 public:

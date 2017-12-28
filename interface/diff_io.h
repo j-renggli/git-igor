@@ -6,7 +6,7 @@
 
 class QWebEnginePage;
 
-namespace gitkit {
+namespace gitigor {
 
 class UIDiffIO : public QObject
 {

@@ -8,7 +8,7 @@
 #include <backend/backend.h>
 #include <backend/runaction.h>
 
-namespace gitkit {
+namespace gitigor {
 
 UIProgress::UIProgress()
 {

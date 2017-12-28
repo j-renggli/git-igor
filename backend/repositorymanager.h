@@ -6,7 +6,7 @@
 
 #include <QtCore/QAbstractItemModel>
 
-namespace gitkit {
+namespace gitigor {
 	
 class RepositoryManager : public QAbstractItemModel {
 	public:

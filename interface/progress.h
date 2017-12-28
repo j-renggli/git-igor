@@ -8,7 +8,7 @@ class QLineEdit;
 class QProgressBar;
 class QTextEdit;
 
-namespace gitkit {
+namespace gitigor {
 
 //class Backend;
 	

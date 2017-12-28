@@ -2,7 +2,7 @@
 
 #include <QtCore/QDir>
 
-namespace gitkit {
+namespace gitigor {
 
 class DiffLine
 {

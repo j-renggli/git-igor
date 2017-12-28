@@ -9,7 +9,7 @@
 class QWebChannel;
 class QWebEngineProfile;
 
-namespace gitkit {
+namespace gitigor {
 
 class UIDiffIO;
 

@@ -7,7 +7,7 @@
 #include "diff.h"
 #include "runner.h"
 
-namespace gitkit {
+namespace gitigor {
 	
 class FileStatus
 {

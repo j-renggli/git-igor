@@ -25,13 +25,13 @@
 
 #include <preferences/preferences.h>
 
-namespace gitkit {
+namespace gitigor {
 
 ////////////////////////////////////////////////////////////////
 
 MainWin::MainWin()
 {
-  setWindowTitle("Git-Kit");
+  setWindowTitle("Git-Igor");
 }
 
 ////////////////////////////////////////////////////////////////

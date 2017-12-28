@@ -6,7 +6,7 @@
 #include "repository.h"
 #include "runner.h"
 
-namespace gitkit {
+namespace gitigor {
 
 class Backend : public QObject
 {

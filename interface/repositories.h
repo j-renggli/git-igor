@@ -9,7 +9,7 @@ class QLineEdit;
 class QPushButton;
 class QTreeView;
 
-namespace gitkit {
+namespace gitigor {
 	
 class RepositoryManager;
 class UIRepoAdd;

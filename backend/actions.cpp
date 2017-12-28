@@ -3,7 +3,7 @@
 #include <QtCore/QDir>
 #include <QtWidgets/QAction>
 
-namespace gitkit {
+namespace gitigor {
 	
 std::map<Actions::eAction, QAction*> Actions::actions_;
 

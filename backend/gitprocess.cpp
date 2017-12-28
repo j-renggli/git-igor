@@ -4,7 +4,7 @@
 #include <QDataStream>
 #include <QtCore/QRegularExpression>
 
-namespace gitkit {
+namespace gitigor {
 
 const QRegularExpression GitProcess::s_rxLineEnd("[\r\n]");
 

@@ -5,7 +5,7 @@
 #include "actions.h"
 #include "repositorymanager.h"
 
-namespace gitkit {
+namespace gitigor {
 
 Backend Backend::s_backend;
 
@@ -31,7 +31,7 @@ bool Backend::initialise(QObject* mainWin)
         Q_ASSERT(false);
 		return false;
 	}
-	const QString config(".config/gitkit");
+    const QString config(".config/git-igor");
 	
 	configPath_ = QDir::home();
     Q_ASSERT(configPath_.exists());

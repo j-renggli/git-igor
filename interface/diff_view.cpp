@@ -8,7 +8,7 @@
 
 #include "diff_io.h"
 
-namespace gitkit {
+namespace gitigor {
 
 UIDiffView::UIDiffView()
 {
@@ -51,7 +51,7 @@ void UIDiffView::doConnect()
                              "  }\n"
                              "});");
         script.setWorldId(QWebEngineScript::MainWorld);
-        script.setInjectionPoint(QWebEngineScript::DocumentCreation);
+        script.setInjectionPoint(QWebEngineScript::DocumentReady);
         script.setRunsOnSubFrames(false);
         profile_->scripts()->insert(script);
         setPage(new QWebEnginePage(profile_, this));

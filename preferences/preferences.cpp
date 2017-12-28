@@ -4,7 +4,7 @@
 
 #include <backend/backend.h>
 
-namespace gitkit {
+namespace gitigor {
 
 Preferences Preferences::s_preferences;
 

@@ -14,7 +14,7 @@
 
 class QTreeView;
 
-namespace gitkit {
+namespace gitigor {
 
 class Backend;
 class FileStatus;

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace gitkit {
+namespace gitigor {
 
 class Preferences
 {

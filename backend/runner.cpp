@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-namespace gitkit {
+namespace gitigor {
 
 Process::Process(const std::shared_ptr<ICommand>& command, bool showDialog)
 : showDialog_(showDialog)

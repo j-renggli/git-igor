@@ -10,7 +10,7 @@
 
 #include "repo_add.h"
 
-namespace gitkit {
+namespace gitigor {
 	
 UIRepositories::UIRepositories()
 : selected_(-1)

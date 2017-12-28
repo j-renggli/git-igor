@@ -16,7 +16,7 @@
 
 #include "runaction.h"
 
-namespace gitkit {
+namespace gitigor {
 /*
 class ICommand
 {

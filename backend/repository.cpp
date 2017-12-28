@@ -9,7 +9,7 @@
 #include "gitprocess.h"
 #include "runaction.h"
 
-namespace gitkit {
+namespace gitigor {
 
 const QRegularExpression Repository::s_rxDiffFiles("^diff --git a[/](.+) b[/](.+)$");
 const QRegularExpression Repository::s_rxDiffContext("^@@ [-](\\d+),(\\d+) [+](\\d+),(\\d+) @@(?: (.+))?$");

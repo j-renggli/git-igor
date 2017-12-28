@@ -4,7 +4,7 @@
 
 #include <backend/backend.h>
 
-namespace gitkit {
+namespace gitigor {
 
 UIDiffIO::UIDiffIO(QObject* parent, QWebEnginePage* page)
     : QObject(parent)

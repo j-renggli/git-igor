@@ -9,7 +9,7 @@ class QLineEdit;
 class QPushButton;
 class QTextEdit;
 
-namespace gitkit {
+namespace gitigor {
 	
 class UIRepoAdd : public QDialog
 {

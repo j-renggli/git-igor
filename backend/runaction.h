@@ -18,7 +18,7 @@
 #include <stack>
 #include <thread>
 */
-namespace gitkit {
+namespace gitigor {
 
 class ICommand
 {

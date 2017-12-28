@@ -6,7 +6,7 @@ class QAction;
 class QDir;
 class QObject;
 
-namespace gitkit {
+namespace gitigor {
 
 class Actions
 {

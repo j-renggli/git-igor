@@ -13,7 +13,7 @@
 #include <QtCore/QUrl>
 #include <iostream>
 
-namespace gitkit {
+namespace gitigor {
 	
 UIRepoAdd::UIRepoAdd(bool isRepository)
 : isRepository_(isRepository)

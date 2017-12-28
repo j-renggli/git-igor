@@ -4,7 +4,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
-namespace gitkit {
+namespace gitigor {
 
 RepositoryManager RepositoryManager::s_repositories;
 	

@@ -9,7 +9,7 @@
 
 #include <iostream>
 
-namespace gitkit {
+namespace gitigor {
 
 UIStaging::UIStaging()
 : indexModel_(true)

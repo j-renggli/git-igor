@@ -1,6 +1,6 @@
 #include "diff.h"
 
-namespace gitkit {
+namespace gitigor {
 
 Diff::Diff(const QFileInfo& left, const QFileInfo& right)
 : left_(left)

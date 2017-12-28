@@ -7,13 +7,8 @@
 #include <QtWidgets/QTabWidget>
 #include <QtWidgets/QTextEdit>
 #include <QtWidgets/QToolBar>
-//#include <QtWebKitWidgets/QWebEngineView>
 
-//#include "commandline.h"
-
-//#include "interface/view.h"
-
-namespace gitkit {
+namespace gitigor {
 
 class UIProgress;
 class UIRepositories;

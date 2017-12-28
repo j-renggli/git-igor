@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-namespace gitkit {
+namespace gitigor {
 
 QString RunCommand::command() const
 {
