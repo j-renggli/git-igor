@@ -22,6 +22,7 @@
 #include <interface/repositories.h>
 #include <interface/staging.h>
 #include <interface/diff_view.h>
+#include <interface/history_view.h>
 
 #include <preferences/preferences.h>
 
@@ -59,6 +60,9 @@ bool MainWin::initialise()
     view_ = new UIDiffView;
     view_->doConnect();
 
+    history_ = new UIHistoryView;
+    history_->initialise();
+
     progress_ = new UIProgress;
     progress_->initialise();
 
@@ -70,6 +74,7 @@ bool MainWin::initialise()
     addDockWidget(Qt::LeftDockWidgetArea, staging_);
 
     tab_layout->addWidget(view_);
+    tab_layout->addWidget(history_);
 
     createActions();
     updateMenu();
@@ -78,6 +83,9 @@ bool MainWin::initialise()
     connect(staging_, SIGNAL(onShowDiff(const std::vector<Diff>&)), view_, SLOT(onShowDiff(const std::vector<Diff>&)));
 
     Actions::getAction(Actions::aFileRefresh)->trigger();
+
+    // TODO: some better place
+    history_->showActive(backend.currentRepo());
 
     return true;
 }

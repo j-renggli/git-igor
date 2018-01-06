@@ -8,6 +8,8 @@
 #include "runner.h"
 
 namespace gitigor {
+
+class GitLogger;
 	
 class FileStatus
 {
@@ -61,7 +63,10 @@ class Repository
 		const QDir root() const { return root_; }
 		const std::vector<QString>& remotes() const { return remotes_; }
 		const std::set<FileStatus>& inStage() const { return files_; }
-		
+        QString activeBranch() const { return currentBranch_; }
+
+        std::unique_ptr<GitLogger> prepareGitLogger() const;
+
 	private:
 		Repository(const Repository& copy);
 
@@ -79,7 +84,7 @@ class Repository
 		
 		std::vector<QString> remotes_;
 		std::vector<QString> branches_;
-		std::pair<QString, QString> tracking_;
+        std::pair<QString, QString> tracking_;
 
 		static const QRegularExpression s_rxDiffFiles;
 		static const QRegularExpression s_rxDiffContext;

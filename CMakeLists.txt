@@ -30,7 +30,7 @@ INCLUDE_DIRECTORIES(. ${Qt5Core_INCLUDE_DIRS})
 STRING(REPLACE "\\" "\\\\" SHARED_DATA_ESCAPED ${SHARED_DATA})
 
 SET(CMAKE_VERBOSE_MAKEFILE 0)
-ADD_COMPILE_OPTIONS(-std=c++11)
+ADD_COMPILE_OPTIONS(-std=c++17)
 SET(CMAKE_CXX_FLAGS "-Wall -ansi -pedantic -g -pg -fpic -fvisibility=hidden -fvisibility-inlines-hidden")
 IF(MSVC)
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zi /Gm-")  # /WX
@@ -50,7 +50,7 @@ SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY bin)
 ######## SOURCE CODE ########
 
 FILE(GLOB GITIGOR_H *.h)
-FILE(GLOB GITIGOR_BACKEND backend/*.cpp)
+FILE(GLOB GITIGOR_BACKEND backend/* backend/git/*)
 FILE(GLOB GITIGOR_INTERFACE interface/*.cpp)
 FILE(GLOB GITIGOR_PREFS preferences/*.cpp)
 

@@ -14,6 +14,7 @@ class UIProgress;
 class UIRepositories;
 class UIStaging;
 class UIDiffView;
+class UIHistoryView;
 
 class MainWin : public QMainWindow
 {
@@ -41,6 +42,7 @@ private:
     UIProgress* progress_;
     UIDiffView* view_;
     UIStaging* staging_;
+    UIHistoryView* history_;
     UIRepositories* repositories_;
 };
 

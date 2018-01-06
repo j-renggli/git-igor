@@ -1,25 +1,21 @@
-#include "gitprocess.h"
+#include "process.h"
 
-#include <QProcess>
 #include <QDataStream>
+#include <QProcess>
 #include <QtCore/QRegularExpression>
 
 namespace gitigor {
 
 const QRegularExpression GitProcess::s_rxLineEnd("[\r\n]");
 
-GitProcess::GitProcess(const QDir& root)
-: root_(root.absolutePath())
-{
-}
+GitProcess::GitProcess(const QDir& root) : root_(root.absolutePath()) {}
 
-QStringList GitProcess::linesOut() const
-{
+QStringList GitProcess::linesOut() const {
     return stdOut_.split(s_rxLineEnd, QString::SkipEmptyParts);
 }
 
-bool GitProcess::run(eCommand command, QStringList args, bool readOut, bool readErr)
-{
+bool GitProcess::run(eCommand command, QStringList args, bool readOut,
+                     bool readErr) {
     QProcess process;
     process.setWorkingDirectory(root_);
 
@@ -28,13 +24,10 @@ bool GitProcess::run(eCommand command, QStringList args, bool readOut, bool read
 
     stdOut_.clear();
     stdErr_.clear();
-    if (ok)
-    {
+    if (ok) {
         if (readOut)
             stdOut_ = process.readAllStandardOutput();
-    }
-    else
-    {
+    } else {
         if (readErr)
             stdErr_ = process.readAllStandardError();
     }
@@ -42,15 +35,14 @@ bool GitProcess::run(eCommand command, QStringList args, bool readOut, bool read
     return ok;
 }
 
-bool GitProcess::runWithInput(eCommand command, QStringList args, QByteArray input, bool readOut, bool readErr)
-{
+bool GitProcess::runWithInput(eCommand command, QStringList args,
+                              QByteArray input, bool readOut, bool readErr) {
     QProcess process;
     process.setWorkingDirectory(root_);
 
     process.start("git", prepareArgs(command, args));
     bool ok = process.waitForStarted();
-    if (ok)
-    {
+    if (ok) {
         process.write(input);
         process.closeWriteChannel();
         ok = process.waitForFinished();
@@ -58,13 +50,10 @@ bool GitProcess::runWithInput(eCommand command, QStringList args, QByteArray inp
 
     stdOut_.clear();
     stdErr_.clear();
-    if (ok)
-    {
+    if (ok) {
         if (readOut)
             stdOut_ = process.readAllStandardOutput();
-    }
-    else
-    {
+    } else {
         if (readErr)
             stdErr_ = process.readAllStandardError();
     }
@@ -72,10 +61,8 @@ bool GitProcess::runWithInput(eCommand command, QStringList args, QByteArray inp
     return ok;
 }
 
-QStringList GitProcess::prepareArgs(eCommand command, QStringList args)
-{
-    switch (command)
-    {
+QStringList GitProcess::prepareArgs(eCommand command, QStringList args) {
+    switch (command) {
     case Add:
         args.insert(0, "add");
         break;
@@ -92,6 +79,9 @@ QStringList GitProcess::prepareArgs(eCommand command, QStringList args)
         args.insert(0, "diff");
         args.insert(1, "--no-color");
         break;
+    case Log:
+        args.insert(0, "log");
+        args.insert(1, "--no-color");
     case Push:
         args.insert(0, "push");
         break;
@@ -113,5 +103,4 @@ QStringList GitProcess::prepareArgs(eCommand command, QStringList args)
     return args;
 }
 
-}
-
+} // namespace gitigor

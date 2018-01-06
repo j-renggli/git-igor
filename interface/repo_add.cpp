@@ -11,7 +11,6 @@
 
 #include <QtCore/QDir>
 #include <QtCore/QUrl>
-#include <iostream>
 
 namespace gitigor {
 	
