@@ -35,7 +35,7 @@ class UIHistoryView : public QWebEngineView {
     void showActive(const Repository& repository);
 
   private slots:
-    void nextItem(const gitigor::LogItem& item);
+    void nextItem(const QJsonObject& item);
 
   private:
     QWebEngineProfile* profile_;

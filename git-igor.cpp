@@ -5,8 +5,6 @@
 
 #include "mainwin.h"
 
-#include "backend/git/logger.h"
-
 int main(int argc, char* argv[]) {
     QApplication app(argc, argv);
 
@@ -21,8 +19,6 @@ int main(int argc, char* argv[]) {
     QString sheet = QLatin1String(stylesheet.readAll());
 
     app.setStyleSheet(sheet);
-
-    qRegisterMetaType<gitigor::LogItem>();
 
     window.show();
     return app.exec();

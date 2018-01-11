@@ -1,5 +1,7 @@
 #include "history_view.h"
 
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QtCore/QDebug>
 #include <QtWebChannel/QWebChannel>
 #include <QtWebEngineWidgets/QWebEngineProfile>
@@ -105,16 +107,27 @@ bool UIHistoryView::initialise() {
 
     setHtml(historyHtml.readAll());
 
-    connect(page(), &QWebEnginePage::loadFinished, historyio_,
-            &UIHistoryIO::onLoaded);
+    // TODO: some better place
+    connect(page(), &QWebEnginePage::loadFinished, [&](bool ok) {
+        if (!ok)
+            return;
+
+        showActive(backend.currentRepo());
+    });
 
     return true;
 }
 
-void UIHistoryView::nextItem(const gitigor::LogItem& item) {
+void UIHistoryView::nextItem(const QJsonObject& item) {
     Q_ASSERT(historyio_);
-    qDebug() << item.id << ": " << item.parents << ", " << item.summary;
-    historyio_->addCommit();
+    QString json = QJsonDocument(item).toJson(QJsonDocument::Compact);
+    // qDebug() << json;
+    QString js =
+        QString("var scope = "
+                "angular.element(document.getElementById('history')).scope();\n"
+                "scope.addCommit(%1);")
+            .arg(json);
+    page()->runJavaScript(js);
 }
 
 void UIHistoryView::showActive(const Repository& repository) {

@@ -2,12 +2,10 @@
 
 #include <cstdio>
 #include <iostream>
-//#include <fcntl.h>
-//#include <fstream>
 
 #ifdef __linux__
-#include <unistd.h>
 #include <sys/wait.h>
+#include <unistd.h>
 #endif
 
 #include <QtGui/QKeyEvent>
@@ -18,11 +16,11 @@
 #include <backend/backend.h>
 #include <backend/repositorymanager.h>
 
+#include <interface/diff_view.h>
+#include <interface/history_view.h>
 #include <interface/progress.h>
 #include <interface/repositories.h>
 #include <interface/staging.h>
-#include <interface/diff_view.h>
-#include <interface/history_view.h>
 
 #include <preferences/preferences.h>
 
@@ -30,22 +28,16 @@ namespace gitigor {
 
 ////////////////////////////////////////////////////////////////
 
-MainWin::MainWin()
-{
-  setWindowTitle("Git-Igor");
-}
+MainWin::MainWin() { setWindowTitle("Git-Igor"); }
 
 ////////////////////////////////////////////////////////////////
 
-MainWin::~MainWin()
-{
-}
+MainWin::~MainWin() {}
 
 ////////////////////////////////////////////////////////////////
 
-bool MainWin::initialise()
-{
-	auto& backend = Backend::instance();
+bool MainWin::initialise() {
+    auto& backend = Backend::instance();
     if (!backend.initialise(this))
         return false;
 
@@ -80,90 +72,82 @@ bool MainWin::initialise()
     updateMenu();
     updateToolbar();
 
-    connect(staging_, SIGNAL(onShowDiff(const std::vector<Diff>&)), view_, SLOT(onShowDiff(const std::vector<Diff>&)));
+    connect(staging_, SIGNAL(onShowDiff(const std::vector<Diff>&)), view_,
+            SLOT(onShowDiff(const std::vector<Diff>&)));
 
     Actions::getAction(Actions::aFileRefresh)->trigger();
-
-    // TODO: some better place
-    history_->showActive(backend.currentRepo());
 
     return true;
 }
 
 ////////////////////////////////////////////////////////////////
 
-bool MainWin::createActions()
-{
-	{
-		auto action = Actions::getAction(Actions::aFileQuit);
-		connect(action, &QAction::triggered, this, &MainWin::close);
-	}
-	
-	{
-		auto action = Actions::getAction(Actions::aRepoEdit);
-		connect(action, &QAction::triggered, repositories_, &UIRepositories::onShow);
-	}
-	/*
-	Backend& backend = Backend::instance();
-	if (auto action = Actions::getAction(Actions::aFileRefresh))
-	{
-		connect(action, SIGNAL(triggered()), &backend, SLOT(onRefresh()));
-	}*/
+bool MainWin::createActions() {
+    {
+        auto action = Actions::getAction(Actions::aFileQuit);
+        connect(action, &QAction::triggered, this, &MainWin::close);
+    }
 
-  return true;
+    {
+        auto action = Actions::getAction(Actions::aRepoEdit);
+        connect(action, &QAction::triggered, repositories_,
+                &UIRepositories::onShow);
+    }
+    /*
+    Backend& backend = Backend::instance();
+    if (auto action = Actions::getAction(Actions::aFileRefresh))
+    {
+            connect(action, SIGNAL(triggered()), &backend, SLOT(onRefresh()));
+    }*/
+
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////
 
-QFileInfo MainWin::style() const
-{
-	return Backend::instance().style();
+QFileInfo MainWin::style() const { return Backend::instance().style(); }
+
+////////////////////////////////////////////////////////////////
+
+bool MainWin::updateMenu() {
+    {
+        auto file = menuBar()->addMenu("&File");
+        file->addAction(Actions::getAction(Actions::aFileQuit));
+        file->addAction(Actions::getAction(Actions::aFileRefresh));
+    }
+
+    {
+        auto remote = menuBar()->addMenu("&Remote");
+        remote->addAction(Actions::getAction(Actions::aGitFetch));
+        remote->addAction(Actions::getAction(Actions::aGitPull));
+        remote->addAction(Actions::getAction(Actions::aGitPush));
+    }
+
+    {
+        auto repos = menuBar()->addMenu("&Repositories");
+        repos->addAction(Actions::getAction(Actions::aRepoEdit));
+    }
+
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////
 
-bool MainWin::updateMenu()
-{
-	{
-		auto file = menuBar()->addMenu("&File");
-		file->addAction(Actions::getAction(Actions::aFileQuit));
-		file->addAction(Actions::getAction(Actions::aFileRefresh));
-	}
-	
-	{
-		auto remote = menuBar()->addMenu("&Remote");
-		remote->addAction(Actions::getAction(Actions::aGitFetch));
-		remote->addAction(Actions::getAction(Actions::aGitPull));
-		remote->addAction(Actions::getAction(Actions::aGitPush));
-	}
-	
-	{
-		auto repos = menuBar()->addMenu("&Repositories");
-		repos->addAction(Actions::getAction(Actions::aRepoEdit));
-	}
+bool MainWin::updateToolbar() {
+    pToolbar_ = addToolBar("File");
+    pToolbar_->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    pToolbar_->setIconSize(QSize(32, 32));
 
-  return true;
+    pToolbar_->addAction(Actions::getAction(Actions::aFileQuit));
+    pToolbar_->addAction(Actions::getAction(Actions::aFileRefresh));
+
+    pToolbar_->addSeparator();
+    pToolbar_->addAction(Actions::getAction(Actions::aGitFetch));
+    pToolbar_->addAction(Actions::getAction(Actions::aGitPull));
+    pToolbar_->addAction(Actions::getAction(Actions::aGitPush));
+
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////
-
-bool MainWin::updateToolbar()
-{
-  pToolbar_ = addToolBar("File");
-	pToolbar_->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	pToolbar_->setIconSize(QSize(32, 32));
-	
-  pToolbar_->addAction(Actions::getAction(Actions::aFileQuit));
-	pToolbar_->addAction(Actions::getAction(Actions::aFileRefresh));
-	
-	pToolbar_->addSeparator();
-  pToolbar_->addAction(Actions::getAction(Actions::aGitFetch));
-  pToolbar_->addAction(Actions::getAction(Actions::aGitPull));
-  pToolbar_->addAction(Actions::getAction(Actions::aGitPush));
-
-  return true;
-}
-
-////////////////////////////////////////////////////////////////
-
 }

@@ -1,5 +1,7 @@
 #include "logger.h"
 
+#include <QJsonArray>
+#include <QJsonObject>
 #include <QtCore/QDebug>
 #include <QtCore/QMetaType>
 #include <QtCore/QProcess>
@@ -59,12 +61,17 @@ void LogWorker::onLineRead(const QString& line) {
     if (commit.hasMatch()) {
         sendItem();
         Q_ASSERT(!current_);
-        current_ = new LogItem();
+        current_ = new QJsonObject();
+        QJsonObject& item = *current_;
+        item["id"] = commit.captured(1);
+        QJsonArray parents;
+        for (const auto& parent : commit.captured(2).split(" "))
+            parents.append(parent);
+        item["parents"] = parents;
+        item["summary"] = commit.captured(10);
+
         // "--format=<%H><%P><%aN><%aE><%aI><%cN><%cE><%cI><%D><%s>:%b"
         // <id><parents><author><email><date><commiter><email><date><branches/tags><summary>:full_message
-        current_->id = commit.captured(1);
-        current_->parents = commit.captured(2).split(" ");
-        current_->summary = commit.captured(10);
     } else {
         qDebug() << line;
     }
@@ -103,7 +110,6 @@ bool GitLogger::start(const QString& head) {
     workerThread_ = worker;
     workerThread_->start();
 
-    onItem(LogItem());
     return true;
 }
 

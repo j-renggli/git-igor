@@ -6,15 +6,6 @@
 
 namespace gitigor {
 
-struct LogItem {
-    LogItem() = default;
-    LogItem(const LogItem& item) = default;
-
-    QString id;
-    QStringList parents;
-    QString summary;
-};
-
 class LogWorker : public QThread {
     Q_OBJECT
 
@@ -24,7 +15,7 @@ class LogWorker : public QThread {
     void run() override;
 
   signals:
-    void onItem(const gitigor::LogItem& item);
+    void onItem(const QJsonObject& item);
 
   private:
     void onLineRead(const QString& line);
@@ -33,7 +24,7 @@ class LogWorker : public QThread {
   private:
     const QDir root_;
     const QString head_;
-    LogItem* current_{nullptr};
+    QJsonObject* current_{nullptr};
 };
 
 class GitLogger : public QObject {
@@ -48,7 +39,7 @@ class GitLogger : public QObject {
     void stop();
 
   signals:
-    void onItem(const gitigor::LogItem& item);
+    void onItem(const QJsonObject& item);
     void onFinished(int exitCode);
 
   private:
@@ -60,5 +51,3 @@ class GitLogger : public QObject {
 };
 
 } // namespace gitigor
-
-Q_DECLARE_METATYPE(gitigor::LogItem)

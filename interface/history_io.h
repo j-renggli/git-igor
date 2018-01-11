@@ -12,11 +12,8 @@ class UIHistoryIO : public QObject {
   public:
     UIHistoryIO(QObject* parent, QWebEnginePage* page);
 
-  public:
-    void addCommit();
-
   public slots:
-    void onLoaded(bool ok);
+    //    void onLoaded(bool ok);
 
   private:
     QWebEnginePage* page_;

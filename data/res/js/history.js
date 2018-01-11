@@ -5,19 +5,20 @@ setup_app = function(app) {
 var log_controller = function($scope) {
 
     $scope.commits = [
-
 ];
 
     $scope.addCommit = function(commit) {
 	$scope.commits.push(commit);
-	$scope.updateLane($scope.commits[$scope.commits.length-1], $scope.lanes);
+
+        if ($scope.commits.length == 1)
+	    $scope.lanes[0] = $scope.commits[0].id;
+
+	$scope.updateLane(commit, $scope.lanes);
+
 	$scope.$apply();
     }
 
     $scope.lanes = [];
-
-    if ($scope.commits.length != 0)
-	$scope.lanes[0] = $scope.commits[0].id;
 
     $scope.updateLane = function(commit, lanes) {
 	commit.lane = lanes.indexOf(commit.id);
