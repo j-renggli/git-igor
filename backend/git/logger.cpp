@@ -9,8 +9,9 @@
 #include "process.h"
 
 namespace {
-const QRegularExpression rxCommitInfo(
-    "^<(.*)><(.*)><(.*)><(.*)><(.*)><(.*)><(.*)><(.*)><(.*)><(.*)>:(.*)$");
+const QRegularExpression rxCommitInfo("^<([a-f0-9]{40})><((?: "
+                                      "?[a-f0-9]{40})+)><(.*)><(.+@.+)><(.*)><("
+                                      ".*)><(.+@.+)><(.*)><(.*)><(.*)>:(.*)$");
 }
 
 namespace gitigor {
@@ -62,6 +63,7 @@ void LogWorker::onLineRead(const QString& line) {
         // "--format=<%H><%P><%aN><%aE><%aI><%cN><%cE><%cI><%D><%s>:%b"
         // <id><parents><author><email><date><commiter><email><date><branches/tags><summary>:full_message
         current_->id = commit.captured(1);
+        current_->parents = commit.captured(2).split(" ");
         current_->summary = commit.captured(10);
     } else {
         qDebug() << line;

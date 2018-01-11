@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Log</title>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+<!--    <link href="normal.css" type="text/css" rel="stylesheet"> -->
+    <script src="angular.min.js"></script>
+<!--    <script src="plotly.min.js"></script> -->
+    <script src="history.js"></script>
+<style>
+body {
+  margin: 0;
+}
+
+.commit_line {
+  height: 14px;
+  font-size: 12px;
+}
+
+.graph {
+  width: 40px;
+  min-width: 40px;
+}
+</style>
+
+</head>
+
+<body>
+ <div id="history" ng-app="log_app" ng-controller="log_controller">
+  <!--<button ng-click="addCommit();">Add commit</button>-->
+  <div class="commit_line" ng-repeat="item in commits">
+   <span class="graph">{{item.lane}}</span>
+   <span class="summary">{{item.summary}}</span>
+  </div>
+ </div>
+</body>
+
+<script type="text/javascript">
+  app = angular.module("log_app", []);
+  setup_app(app);
+</script>
+
+</html>

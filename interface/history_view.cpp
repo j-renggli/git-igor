@@ -5,9 +5,12 @@
 #include <QtWebEngineWidgets/QWebEngineProfile>
 #include <QtWebEngineWidgets/QWebEngineScriptCollection>
 
+#include <backend/backend.h>
 #include <backend/git/logger.h>
 #include <backend/git/process.h>
 #include <backend/repository.h>
+
+#include "history_io.h"
 
 namespace gitigor {
 
@@ -16,38 +19,72 @@ UIHistoryView::UIHistoryView() {}
 UIHistoryView::~UIHistoryView() {}
 
 bool UIHistoryView::initialise() {
-    profile_ = new QWebEngineProfile("Git History", this);
+    profile_ = new QWebEngineProfile("Git Log History", this);
     channel_ = new QWebChannel(this);
 
-    // Set-up web channel
-    QFile qwebchannel(":/qtwebchannel/qwebchannel.js");
-    if (!qwebchannel.open(QIODevice::ReadOnly))
-        throw std::runtime_error("Missing web channel file");
+    Backend& backend = Backend::instance();
+    QDir htmlRoot = backend.htmlFolder();
 
     {
-        QByteArray channelSetup = qwebchannel.readAll();
+        // Set-up web channel
+        QFile qwebchannel(":/qtwebchannel/qwebchannel.js");
+        if (!qwebchannel.open(QIODevice::ReadOnly))
+            throw std::runtime_error("Missing web channel file");
+
         QWebEngineScript script;
         script.setName("qwebchannel.js");
-        script.setSourceCode(channelSetup);
+        script.setSourceCode(qwebchannel.readAll());
         script.setWorldId(QWebEngineScript::MainWorld);
         script.setInjectionPoint(QWebEngineScript::DocumentCreation);
         profile_->scripts()->insert(script);
     }
-    /*
+
+    {
+        // Angular js
+        QFile angular(htmlRoot.absoluteFilePath("angular.min.js"));
+        if (!angular.open(QIODevice::ReadOnly))
+            throw std::runtime_error("Missing Angular file");
+
+        QWebEngineScript script;
+        script.setName("angular.min.js");
+        script.setSourceCode(angular.readAll());
+        script.setWorldId(QWebEngineScript::MainWorld);
+        script.setInjectionPoint(QWebEngineScript::DocumentCreation);
+        profile_->scripts()->insert(script);
+    }
+
+    {
+        // Main code
+        QFile history(htmlRoot.absoluteFilePath("history.js"));
+        if (!history.open(QIODevice::ReadOnly))
+            throw std::runtime_error("Missing history script");
+
+        QWebEngineScript script;
+        script.setName("history.js");
+        script.setSourceCode(history.readAll());
+        script.setWorldId(QWebEngineScript::MainWorld);
+        script.setInjectionPoint(QWebEngineScript::DocumentCreation);
+        profile_->scripts()->insert(script);
+    }
+
     {
         QWebEngineScript script;
         script.setName("qtio.js");
-        script.setSourceCode("new QWebChannel(window.qt.webChannelTransport,
-    function(channel) {\n"
+        script.setSourceCode("new QWebChannel(window.qt.webChannelTransport, "
+                             "function(channel) {\n"
                              "  window.qtio = channel.objects.qtio;\n"
-                             "  window.wrappers = {\n"
-                             "    stageHunk: function(index) {\n"
-                             "      var name='diff_'+index;\n"
-                             "
-    document.getElementById(name).classList.add('hidden');\n"
-                             "      window.qtio.onStageHunk(index);\n"
-                             "    }\n"
+                             "  window.qtjs = angular;\n"
+                             "  window.addCommit = function() {\n"
+                             "    alert(this);\n"
                              "  }\n"
+                             /* "  window.wrappers = {\n"
+                              "    stageHunk: function(index) {\n"
+                              "      var name='diff_'+index;\n"
+                              "
+     document.getElementById(name).classList.add('hidden');\n"
+                              "      window.qtio.onStageHunk(index);\n"
+                              "    }\n"
+                              "  }\n"*/
                              "});");
         script.setWorldId(QWebEngineScript::MainWorld);
         script.setInjectionPoint(QWebEngineScript::DocumentReady);
@@ -56,22 +93,28 @@ bool UIHistoryView::initialise() {
         setPage(new QWebEnginePage(profile_, this));
     }
 
-    Q_ASSERT(!diffio_);
-    diffio_ = new UIDiffIO(this, page());
-    channel_->registerObject(QStringLiteral("qtio"), diffio_);
+    Q_ASSERT(!historyio_);
+    historyio_ = new UIHistoryIO(this, page());
+    channel_->registerObject(QStringLiteral("qtio"), historyio_);
     page()->setWebChannel(channel_);
     show();
-    */
-    QString html = "<html><head><style>";
-    html += "</style></head><body>";
-    html += "TODO";
-    html += "</body></html>";
-    setHtml(html);
+
+    QFile historyHtml(htmlRoot.absoluteFilePath("history.html"));
+    if (!historyHtml.open(QIODevice::ReadOnly))
+        throw std::runtime_error("Missing history html file");
+
+    setHtml(historyHtml.readAll());
+
+    connect(page(), &QWebEnginePage::loadFinished, historyio_,
+            &UIHistoryIO::onLoaded);
+
     return true;
 }
 
 void UIHistoryView::nextItem(const gitigor::LogItem& item) {
-    qDebug() << item.id << ": " << item.summary;
+    Q_ASSERT(historyio_);
+    qDebug() << item.id << ": " << item.parents << ", " << item.summary;
+    historyio_->addCommit();
 }
 
 void UIHistoryView::showActive(const Repository& repository) {
@@ -92,107 +135,8 @@ void UIHistoryView::showActive(const Repository& repository) {
                            &UIHistoryView::nextItem);
 
     logger_->start();
-    // update();
 }
 
-void UIHistoryView::update() {
-    // TODO: separate thread, update page on the fly (javascript)
-    /*    Q_ASSERT(diffio_);
-        diffio_->setActiveDiff(diff);
-
-        if (diff.empty())
-        {
-            Q_ASSERT(false);
-            // This can happen if file was reset before a refresh happened
-            setHtml("");
-            return;
-        }
-
-        QString html = "<html><head><style>";
-
-        const Backend& backend = Backend::instance();
-        const QDir folder = backend.cssFolder();
-        QFileInfo style(folder, "diff.css");
-        QFile file( style.filePath() );
-        if ( file.open(QIODevice::ReadOnly) )
-        {
-            QTextStream in(&file);
-
-            while(!in.atEnd())
-            {
-                    html += in.readLine();
-            }
-
-            file.close();
-        }
-
-
-        html += "</style></head><body>";
-        auto contexts = diff.at(0).contexts();
-
-        // Header: file name
-        html += "<h1>";
-        auto fileInfo = diff.at(0).fileInfo();
-        if (fileInfo.first == fileInfo.second)
-            html += fileInfo.first.filePath();
-        else
-            html += fileInfo.first.filePath() + " -> " +
-       fileInfo.second.filePath();
-        html += "</h1>";
-
-        for (size_t i = 0; i < contexts.size(); ++i)
-        {
-            const QString diffIndex = QString::number(i);
-            const auto& context = contexts[i];
-            html += "<div class='context' id='diff_" + diffIndex + "'>\n<h2>";
-            if (context.context().isEmpty())
-                html += "Global context";
-            else
-                html += context.context();
-            html += "</h2>\n";
-
-            QString prefix;
-            QString code;
-            for (const auto& line : context.lines())
-            {
-                QString lineOld;
-                QString lineNew;
-                QString lineType;
-                QString classType;
-                switch (line.type())
-                {
-                case DiffLine::Inserted:
-                    lineNew = QString::number(line.line());
-                    lineType = "+";
-                    classType = " addition";
-                    break;
-                case DiffLine::Deleted:
-                    lineOld = QString::number(line.line());
-                    lineType = "-";
-                    classType = " deletion";
-                    break;
-                default:
-                    lineType = " ";
-                    break;
-                }
-                prefix += lineOld + lineNew + " " + lineType + "\n";
-                code += "<code class=\"language-cpp" + classType + "\">";
-                code += line.text().toHtmlEscaped().replace("\r", "<span
-       extra=\"CR\"></span>");
-                if (line.missingNewLine())
-                    code += "<span extra=\"No newline at end of file\"></span>";
-                code += "</code>\n";
-            }
-
-            QString hunk = "<button onclick=\"window.wrappers.stageHunk(" +
-       diffIndex + ");\">Stage hunk</button>";
-
-            html += "<div class=\"diff\"><pre class=\"info\">" + prefix +
-       "</pre><pre>" + code + "</pre></div>" + hunk + "</div>";
-        }
-
-        html += "</body></html>";
-        setHtml(html);*/
-}
+void UIHistoryView::update() {}
 
 } // namespace gitigor

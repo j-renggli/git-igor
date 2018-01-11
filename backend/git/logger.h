@@ -11,6 +11,7 @@ struct LogItem {
     LogItem(const LogItem& item) = default;
 
     QString id;
+    QStringList parents;
     QString summary;
 };
 
