@@ -16,7 +16,7 @@
 #include <backend/backend.h>
 #include <backend/repositorymanager.h>
 
-#include <interface/diff_view.h>
+#include <interface/diff/view.h>
 #include <interface/history_view.h>
 #include <interface/progress.h>
 #include <interface/repositories.h>
@@ -49,8 +49,8 @@ bool MainWin::initialise() {
     auto tab_layout = new QVBoxLayout;
     pMainView_->setLayout(tab_layout);
 
-    view_ = new UIDiffView;
-    view_->doConnect();
+    view_ = new DiffView;
+    view_->initialise();
 
     history_ = new UIHistoryView;
     history_->initialise();
@@ -72,8 +72,7 @@ bool MainWin::initialise() {
     updateMenu();
     updateToolbar();
 
-    connect(staging_, SIGNAL(onShowDiff(const std::vector<Diff>&)), view_,
-            SLOT(onShowDiff(const std::vector<Diff>&)));
+    connect(staging_, &UIStaging::onShowDiff, view_, &DiffView::onShowDiff);
 
     Actions::getAction(Actions::aFileRefresh)->trigger();
 

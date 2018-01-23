@@ -3,8 +3,8 @@
 #include <QtCore/QFileInfo>
 #include <QtWidgets/QAction>
 #include <QtWidgets/QMainWindow>
-#include <QtWidgets/QTableView>
 #include <QtWidgets/QTabWidget>
+#include <QtWidgets/QTableView>
 #include <QtWidgets/QTextEdit>
 #include <QtWidgets/QToolBar>
 
@@ -13,14 +13,13 @@ namespace gitigor {
 class UIProgress;
 class UIRepositories;
 class UIStaging;
-class UIDiffView;
+class DiffView;
 class UIHistoryView;
 
-class MainWin : public QMainWindow
-{
+class MainWin : public QMainWindow {
     Q_OBJECT
 
-public:
+  public:
     MainWin();
     ~MainWin();
 
@@ -28,22 +27,21 @@ public:
 
     QFileInfo style() const;
 
-private:
+  private:
     bool createActions();
 
     bool updateMenu();
     bool updateToolbar();
 
-private:
+  private:
     QToolBar* pToolbar_;
 
     QTabWidget* pMainView_;
 
     UIProgress* progress_;
-    UIDiffView* view_;
+    DiffView* view_;
     UIStaging* staging_;
     UIHistoryView* history_;
     UIRepositories* repositories_;
 };
-
 }

@@ -33,7 +33,7 @@ class Backend : public QObject {
     void onRepoUpdated();
 
   public slots:
-    Q_INVOKABLE void onRefresh();
+    Q_INVOKABLE void onRefresh(bool forceStatus = false);
     Q_INVOKABLE void onFetch();
     Q_INVOKABLE void onPull();
     Q_INVOKABLE void onPush();

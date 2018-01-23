@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Staging</title>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+<!--    <link href="normal.css" type="text/css" rel="stylesheet"> -->
+    <script src="angular.min.js"></script>
+    <script src="staging.js"></script>
+<style>
+body {
+  font-family: "Courier New", Monospace;
+  font-size: 12pt;
+  margin: 0;
+}
+
+h1 {
+  background: lightgrey;
+}
+
+code {
+  cursor: text;
+  display: block;
+  tab-size: 4;
+  width: 100%;
+}
+
+.diff {
+  display: table;
+  table-layout: fixed;
+  font-size: 0.8em;
+  width: 100%;
+}
+
+pre {
+  margin: 0;
+}
+
+.info {
+  display: table-cell;
+  width: 2.7em;
+}
+
+.code {
+  display: table-cell;
+}
+
+.code pre {
+  overflow-x: auto;
+}
+
+.hidden {
+  display: none;
+}
+
+.context {
+  border: 0.1em solid lightcyan;
+  margin-top: 1em;
+}
+
+.context h2 {
+  background: lightcyan;
+  font-size: 1.1em;
+  margin: 0;
+}
+
+.add {
+  background-color: #eeffee;
+}
+
+.del {
+  background-color: #ffeeee;
+}
+
+.actions {
+  display: table-cell;
+  width: 5em;
+}
+
+.in_actions {
+  font-size: smaller;
+  position: sticky;
+  top: 1em;
+  margin-bottom: 1em;
+  margin-top: 1em;
+  text-align: center;
+}
+
+.in_actions span {
+  cursor: pointer;
+}
+
+.in_actions .add:hover:enabled {
+  background: #aaddaa;
+  cursor: pointer;
+}
+
+.in_actions .del:hover:enabled {
+  background: #ddaaaa;
+  cursor: pointer;
+}
+
+.actions button {
+  border-radius: 0.4em;
+  font-size: 100%;
+  margin-top: 0.5em;
+  padding: 0.2em;
+  width: 90%;
+}
+
+[extra] {
+  margin-left: 0.1em;
+  padding-left: 0.1em;
+  padding-right: 0.2em;
+  background: gold;
+}
+
+[extra]::after {
+  content: attr(extra);
+}
+
+.selected {
+  box-shadow: inset 0 0 0.5em 0.5em rgba(0, 0, 0, 0.4);
+}
+
+</style>
+
+</head>
+
+<body>
+ <div id="staging" ng-app="stage_app" ng-controller="stage_controller">
+  <h1>{{fileInfo}}</h1>
+  <div class="context" id="context.id" ng-repeat="context in contexts" ng-if="!context.hidden">
+   <h2>{{context.title}}</h2>
+   <div class="diff">
+    <pre class="info">
+<span ng-repeat="line in context.lines">{{line.number}} {{signs[line.short]}}
+</span></pre>
+    <div class="code">
+     <pre class="in_code">
+<code class="language-cpp {{line.short}}" ng-repeat="line in context.lines"
+ng-class="{'selected': isSelected(context, $index)}"
+ng-mousedown="mouseDown(context, $index)" ng-mouseup="mouseUp(context, $index)">{{line.code}}<span ng-repeat="item in line.extra" extra="{{item}}"></span>
+</code></pre>
+    </div>
+    <div class="actions">
+     <div class="in_actions" ng-show="!context.discarding">
+      <span class ng-click="context.discarding=true">Stage &gt;</span>
+      <button class="add" ng-click="stageHunk(context)">Hunk</button>
+      <button class="add" ng-disabled="context.endSelected == null" ng-click="stageLines(context)">Lines</button>
+     </div>
+     <div class="in_actions" ng-show="context.discarding">
+      <span ng-click="context.discarding=false">Discard &gt;</span>
+      <button class="del" ng-click="window.wrappers.discardHunk(context.id)">Hunk</button>
+      <button class="del" ng-disabled="context.endSelected == null" ng-click="window.wrappers.discardLines(context.id, context.beginSelected, context.endSelected)">Lines</button>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+</body>
+
+<script type="text/javascript">
+  app = angular.module("stage_app", []);
+  setup_app(app);
+</script>
+
+</html>
