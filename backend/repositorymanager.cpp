@@ -3,6 +3,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QtGui/QFont>
 
 namespace gitigor {
 
@@ -40,14 +41,15 @@ bool RepositoryManager::remove(size_t index) {
 bool RepositoryManager::setActive(size_t index) {
     if (index >= repositories_.size())
         return false;
+    beginResetModel();
     active_ = index;
+    endResetModel();
     return true;
 }
 
 QVariant RepositoryManager::data(const QModelIndex& index, int role) const {
+    const size_t row = index.row();
     if (role == Qt::DisplayRole) {
-        const size_t row = index.row();
-
         if (row < repositories_.size()) {
             if (auto& repo = repositories_.at(row)) {
                 switch (index.column()) {
@@ -58,6 +60,10 @@ QVariant RepositoryManager::data(const QModelIndex& index, int role) const {
                 }
             }
         }
+    } else if (role == Qt::FontRole && row == active_) {
+        QFont font;
+        font.setBold(true);
+        return font;
     }
 
     return QVariant();
