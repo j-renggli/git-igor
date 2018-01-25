@@ -12,6 +12,8 @@
 
 #include <backend/repository.h>
 
+#include "includes.h"
+
 class QTreeView;
 
 namespace gitigor {
@@ -46,7 +48,7 @@ class StageModel : public QAbstractItemModel {
     std::vector<FileStatus> files_;
 };
 
-class UIStaging : public QDockWidget {
+class interface_EXPORT UIStaging : public QDockWidget {
     Q_OBJECT
 
   public:

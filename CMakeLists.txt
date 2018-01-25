@@ -1,29 +1,25 @@
-PROJECT(git-igor)
+project(git-igor)
 
-CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
+cmake_minimum_required(VERSION 3.0)
 
-SET(MAJOR_VERSION 0)
-SET(MINOR_VERSION 1)
-SET(PATCH_VERSION 0)
+set(MAJOR_VERSION 0)
+set(MINOR_VERSION 1)
+set(PATCH_VERSION 0)
 
-SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
-SET(SHARED_DATA ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME})
-SET(RES_PATH ${SHARED_DATA}/res)
+set(SHARED_DATA ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME})
+set(RES_PATH ${SHARED_DATA}/res)
 
-INCLUDE(CPackConfig.cmake)
+include(CPackConfig.cmake)
 
 ######## QT ########
 
-INCLUDE(Qt)
+include(Qt)
 
-INCLUDE_DIRECTORIES(. ${Qt5Core_INCLUDE_DIRS})
+include_directories(. ${Qt5Core_INCLUDE_DIRS})
 
 ######## DEPENDENCIES ########
-
-######## ALL DLLs ########
-
-#ADD_SUBDIRECTORY(testing)
 
 ######## SETUP ########
 
@@ -44,23 +40,24 @@ ELSE(MSVC)
     SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS} -O3 -DSHARED_DATA_FOLDER=\"\\\"${SHARED_DATA_ESCAPED}\\\"\"")
 ENDIF(MSVC)
 
-SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
-SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY bin)
+SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+######## ALL DLLs ########
+
+add_subdirectory(backend)
+add_subdirectory(interface)
 
 ######## SOURCE CODE ########
 
-FILE(GLOB GITIGOR_H *.h)
-FILE(GLOB GITIGOR_BACKEND backend/*.h backend/*.cpp backend/git/* backend/diff/*)
-FILE(GLOB GITIGOR_INTERFACE interface/*.cpp interface/diff/*.cpp)
-FILE(GLOB GITIGOR_PREFS preferences/*.cpp)
+file(GLOB GITIGOR_H *.h)
+file(GLOB GITIGOR_PREFS preferences/*.cpp)
 
-SET(GITIGOR_SRC
+set(GITIGOR_SRC
 #commandline.cpp
 git-igor.cpp
 mainwin.cpp
 
-${GITIGOR_BACKEND}
-${GITIGOR_INTERFACE}
 ${GITIGOR_PREFS}
 
 ${GITIGOR_H}
@@ -70,7 +67,9 @@ ${GITIGOR_H}
 
 ######## EXECUTABLE ########
 
-ADD_EXECUTABLE(${PROJECT_NAME} ${GITIGOR_SRC})
+add_executable(${PROJECT_NAME} ${GITIGOR_SRC})
+
+target_link_libraries(${PROJECT_NAME} backend interface)
 
 IF (MSVC)
 	#GET_TARGET_PROPERTY(QtCore_location Qt5::Core LOCATION)
@@ -79,8 +78,8 @@ ENDIF (MSVC)
 
 ######## INSTALLATION ########
 
-INSTALL(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
-INSTALL(DIRECTORY data/res/icons DESTINATION ${RES_PATH})
-INSTALL(DIRECTORY data/res/styles DESTINATION ${RES_PATH})
+install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
+install(DIRECTORY data/res/icons DESTINATION ${RES_PATH})
+install(DIRECTORY data/res/styles DESTINATION ${RES_PATH})
 #SET(BIN_INSTALL_DIR "bin")
 

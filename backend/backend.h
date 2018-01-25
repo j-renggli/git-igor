@@ -3,12 +3,13 @@
 #include <QtCore/QDir>
 #include <QtCore/QObject>
 
+#include "includes.h"
 #include "repository.h"
 #include "runner.h"
 
 namespace gitigor {
 
-class Backend : public QObject {
+class backend_EXPORT Backend : public QObject {
     Q_OBJECT
 
   public:

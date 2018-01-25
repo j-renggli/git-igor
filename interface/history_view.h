@@ -4,8 +4,9 @@
 
 #include <QtWebEngineWidgets/QWebEngineView>
 
-//#include <backend/repository.h>
 #include <backend/git/logger.h> // Necessary due to registered LogItem...
+
+#include "includes.h"
 
 class QWebChannel;
 class QWebEngineProfile;
@@ -16,7 +17,7 @@ class GitLogger;
 class Repository;
 class UIHistoryIO;
 
-class UIHistoryView : public QWebEngineView {
+class interface_EXPORT UIHistoryView : public QWebEngineView {
     Q_OBJECT
 
   public:

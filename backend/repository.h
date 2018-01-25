@@ -5,13 +5,14 @@
 #include <QtCore/QDir>
 
 #include "diff/diff.h"
+#include "includes.h"
 #include "runner.h"
 
 namespace gitigor {
 
 class GitLogger;
 
-class FileStatus {
+class backend_EXPORT FileStatus {
   public:
     enum eStatus { NORMAL, ADDED, MODIFIED, DELETED, RENAMED, COPIED };
 
@@ -31,7 +32,7 @@ class FileStatus {
     bool conflict_;
 };
 
-class Repository {
+class backend_EXPORT Repository {
   public:
     Repository(const QString& name, const QDir& root);
 

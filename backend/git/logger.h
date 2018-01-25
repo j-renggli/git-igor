@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QThread>
 
+#include "../includes.h"
+
 namespace gitigor {
 
 class LogWorker : public QThread {
@@ -27,7 +29,7 @@ class LogWorker : public QThread {
     QJsonObject* current_{nullptr};
 };
 
-class GitLogger : public QObject {
+class backend_EXPORT GitLogger : public QObject {
     Q_OBJECT
 
   public:

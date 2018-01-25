@@ -5,6 +5,8 @@
 
 #include <QtWidgets/QDialog>
 
+#include "includes.h"
+
 class QLineEdit;
 class QPushButton;
 class QTreeView;
@@ -34,7 +36,7 @@ class RemotesModel : public QAbstractItemModel {
     RepositoryManager& manager_;
 };
 
-class UIRepositories : public QDialog {
+class interface_EXPORT UIRepositories : public QDialog {
     Q_OBJECT
 
   public:

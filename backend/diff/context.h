@@ -4,11 +4,12 @@
 
 #include <QString>
 
+#include "../includes.h"
 #include "line.h"
 
 namespace gitigor {
 
-class DiffContext {
+class backend_EXPORT DiffContext {
   public:
     DiffContext(size_t startOld, size_t countOld, size_t startNew,
                 size_t countNew, const QString& oldFile, const QString& newFile,

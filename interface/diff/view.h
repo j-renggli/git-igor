@@ -6,6 +6,8 @@
 
 #include <backend/diff/diff.h>
 
+#include "../includes.h"
+
 class QWebChannel;
 class QWebEngineProfile;
 
@@ -13,7 +15,7 @@ namespace gitigor {
 
 class DiffIO;
 
-class DiffView : public QWebEngineView {
+class interface_EXPORT DiffView : public QWebEngineView {
     Q_OBJECT
 
   public:
