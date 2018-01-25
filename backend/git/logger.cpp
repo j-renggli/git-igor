@@ -14,6 +14,13 @@ namespace {
 const QRegularExpression rxCommitInfo("^<([a-f0-9]{40})><((?: "
                                       "?[a-f0-9]{40})+)><(.*)><(.+@.+)><(.*)><("
                                       ".*)><(.+@.+)><(.*)><(.*)><(.*)>:(.*)$");
+
+#ifdef _WIN32
+const QString git_cmd = "C:\\Program Files\\Git\\bin\\git.exe";
+#else
+const QString git_cmd = "git";
+#endif
+
 }
 
 namespace gitigor {
@@ -23,8 +30,8 @@ LogWorker::LogWorker(const QDir& root, const QString& head)
 
 void LogWorker::run() {
     QProcess process;
-    process.setWorkingDirectory(root_.absolutePath());
-    process.start("git", QStringList()
+    process.setWorkingDirectory(root_.absolutePath().mid(1).replace("/", "\\"));
+    process.start(git_cmd, QStringList()
                              << "log"
                              << "--no-color"
                              << "--decorate=short"

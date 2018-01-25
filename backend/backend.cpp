@@ -17,6 +17,10 @@ const Repository& Backend::currentRepo() const {
     return RepositoryManager::instance().active();
 }
 
+bool Backend::empty() const {
+    return RepositoryManager::instance().empty();
+}
+
 bool Backend::initialise(QObject* mainWin) {
     if (!resourcesPath_.exists()) {
         Q_ASSERT(false);

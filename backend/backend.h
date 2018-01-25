@@ -16,6 +16,7 @@ class backend_EXPORT Backend : public QObject {
     static Backend& instance();
     virtual ~Backend() {}
 
+    bool empty() const;
     const Repository&
     currentRepo() const; // { return repositories_.at(current_repo_); }
     const ActionRunner& taskRunner() const { return runner_; }

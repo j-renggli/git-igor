@@ -4,11 +4,22 @@
 #include <QProcess>
 #include <QtCore/QRegularExpression>
 
+#include <iostream>
 namespace gitigor {
 
 const QRegularExpression GitProcess::s_rxLineEnd("[\r\n]");
 
-GitProcess::GitProcess(const QDir& root) : root_(root.absolutePath()) {}
+#ifdef _WIN32
+const QString git_cmd = "C:\\Program Files\\Git\\bin\\git.exe";
+#else
+const QString git_cmd = "git";
+#endif
+
+GitProcess::GitProcess(const QDir& root) : root_(root.absolutePath()) {
+#ifdef _WIN32
+    root_ = root_.mid(1).replace("/", "\\");
+#endif
+}
 
 QStringList GitProcess::linesOut() const {
     return stdOut_.split(s_rxLineEnd, QString::SkipEmptyParts);
@@ -19,7 +30,7 @@ bool GitProcess::run(eCommand command, QStringList args, bool readOut,
     QProcess process;
     process.setWorkingDirectory(root_);
 
-    process.start("git", prepareArgs(command, args));
+    process.start(git_cmd, prepareArgs(command, args));
     bool ok = process.waitForFinished();
 
     stdOut_.clear();
@@ -37,7 +48,7 @@ bool GitProcess::runWithInput(eCommand command, QStringList args,
     QProcess process;
     process.setWorkingDirectory(root_);
 
-    process.start("git", prepareArgs(command, args));
+    process.start(git_cmd, prepareArgs(command, args));
     bool ok = process.waitForStarted();
     if (ok) {
         process.write(input);
