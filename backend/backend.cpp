@@ -85,12 +85,12 @@ void Backend::workEnded() {} // std::cout << "Work ended" << std::endl; }
 void Backend::workOutput(const QString& output) {
 } // std::cout << output.toLatin1().data() << std::endl; }
 
-void Backend::onRefresh() {
+void Backend::onRefresh(bool forceStatus) {
     auto& repos = RepositoryManager::instance();
     if (repos.empty())
         return;
 
-    if (repos.active().updateStatus()) {
+    if (repos.active().updateStatus() || forceStatus) {
         emit onRepoUpdated();
     }
 }

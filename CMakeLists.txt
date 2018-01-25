@@ -50,8 +50,8 @@ SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY bin)
 ######## SOURCE CODE ########
 
 FILE(GLOB GITIGOR_H *.h)
-FILE(GLOB GITIGOR_BACKEND backend/*.h backend/*.cpp backend/git/*)
-FILE(GLOB GITIGOR_INTERFACE interface/*.cpp)
+FILE(GLOB GITIGOR_BACKEND backend/*.h backend/*.cpp backend/git/* backend/diff/*)
+FILE(GLOB GITIGOR_INTERFACE interface/*.cpp interface/diff/*.cpp)
 FILE(GLOB GITIGOR_PREFS preferences/*.cpp)
 
 SET(GITIGOR_SRC

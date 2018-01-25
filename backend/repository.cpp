@@ -3,6 +3,7 @@
 #include <sstream>
 #include <stack>
 
+#include <QDebug>
 #include <QtCore/QRegularExpression>
 #include <QtCore/QTextStream>
 
@@ -18,22 +19,22 @@ const QRegularExpression
 const QRegularExpression Repository::s_rxDiffContext(
     "^@@ [-](\\d+),(\\d+) [+](\\d+),(\\d+) @@(?: (.+))?$");
 
-FileStatus::FileStatus(const QFileInfo &path, eStatus index, eStatus workTree,
+FileStatus::FileStatus(const QFileInfo& path, eStatus index, eStatus workTree,
                        bool conflict)
     : path_(path), index_(index), workTree_(workTree), conflict_(conflict) {}
 
-bool FileStatus::operator<(const FileStatus &rhs) const {
+bool FileStatus::operator<(const FileStatus& rhs) const {
     return path_.filePath() < rhs.path_.filePath();
 }
 
 ////////////////////////////////////////////////////////////////
 
-Repository::Repository(const QString &name, const QDir &root)
+Repository::Repository(const QString& name, const QDir& root)
     : root_(root), name_(name) {}
 
-Repository::Repository(const Repository &copy) { Q_ASSERT(false); }
+Repository::Repository(const Repository& copy) { Q_ASSERT(false); }
 
-bool Repository::commit(const QString &message) const {
+bool Repository::commit(const QString& message) const {
     if (message.isEmpty())
         return false;
 
@@ -42,12 +43,12 @@ bool Repository::commit(const QString &message) const {
                        false, false);
 }
 
-std::vector<Diff> Repository::diff(const FileStatus &file, bool indexed) const {
+std::vector<Diff> Repository::diff(const FileStatus& file, bool indexed) const {
     std::vector<Diff> diffs;
 
-    auto parseText = [](const QString &text,
-                        std::function<void(const QString &, const QString &,
-                                           const QString &, const QString &)>
+    auto parseText = [](const QString& text,
+                        std::function<void(const QString&, const QString&,
+                                           const QString&, const QString&)>
                             onLine) {
         static QRegularExpression rxLine(
             "((.)(.*))?(\\r\\n|\\n)"); //, QRegularExpression::MultilineOption);
@@ -77,8 +78,8 @@ std::vector<Diff> Repository::diff(const FileStatus &file, bool indexed) const {
             QTextStream in(&disk_file);
             diffs.push_back(Diff(QFileInfo(), file.path()));
             parseText(in.readAll(),
-                      [&](const QString &line, const QString &prefix,
-                          const QString &noPrefix, const QString &newLine) {
+                      [&](const QString& line, const QString& prefix,
+                          const QString& noPrefix, const QString& newLine) {
                           diffs.back().pushNewLine(line, newLine);
                       });
             disk_file.close();
@@ -96,8 +97,8 @@ std::vector<Diff> Repository::diff(const FileStatus &file, bool indexed) const {
         GitProcess process(root_);
         process.run(GitProcess::Show, QStringList() << head, true, false);
         parseText(process.out(),
-                  [&](const QString &line, const QString &prefix,
-                      const QString &noPrefix, const QString &newLine) {
+                  [&](const QString& line, const QString& prefix,
+                      const QString& noPrefix, const QString& newLine) {
                       diffs.back().pushDeletedLine(line, newLine);
                   });
         return diffs;
@@ -119,8 +120,8 @@ std::vector<Diff> Repository::diff(const FileStatus &file, bool indexed) const {
     Previous lastOp = BOTH;
 
     parseText(process.out(),
-              [&](const QString &line, const QString &prefix,
-                  const QString &noPrefix, const QString &newLine) {
+              [&](const QString& line, const QString& prefix,
+                  const QString& noPrefix, const QString& newLine) {
                   auto fileMatch = s_rxDiffFiles.match(line);
                   if (fileMatch.hasMatch()) {
                       left = fileMatch.captured(1);
@@ -302,7 +303,7 @@ bool Repository::push(QString remote, QString branch) {
     return true;
 }
 
-void Repository::stage(const FileStatus &file) const {
+void Repository::stage(const FileStatus& file) const {
     GitProcess::eCommand command;
     switch (file.status(false)) {
     case FileStatus::ADDED:
@@ -320,14 +321,14 @@ void Repository::stage(const FileStatus &file) const {
     process.run(command, QStringList() << file.path().filePath(), false, false);
 }
 
-void Repository::stage(const DiffContext &context) const {
+void Repository::stage(const DiffContext& context) const {
     GitProcess process(root_);
     process.runWithInput(GitProcess::Apply, QStringList() << "--cached"
                                                           << "-",
                          context.toPatch().toUtf8(), true, true);
 }
 
-void Repository::unstage(const FileStatus &file) const {
+void Repository::unstage(const FileStatus& file) const {
     GitProcess process(root_);
     process.run(GitProcess::Reset, QStringList() << file.path().filePath(),
                 false, false);

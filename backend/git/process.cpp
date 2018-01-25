@@ -35,13 +35,10 @@ bool GitProcess::run(eCommand command, QStringList args, bool readOut,
 
     stdOut_.clear();
     stdErr_.clear();
-    if (ok) {
-        if (readOut)
-            stdOut_ = process.readAllStandardOutput();
-    } else {
-        if (readErr)
-            stdErr_ = process.readAllStandardError();
-    }
+    if (readOut)
+        stdOut_ = process.readAllStandardOutput();
+    if (readErr)
+        stdErr_ = process.readAllStandardError();
 
     return ok;
 }
@@ -61,13 +58,10 @@ bool GitProcess::runWithInput(eCommand command, QStringList args,
 
     stdOut_.clear();
     stdErr_.clear();
-    if (ok) {
-        if (readOut)
-            stdOut_ = process.readAllStandardOutput();
-    } else {
-        if (readErr)
-            stdErr_ = process.readAllStandardError();
-    }
+    if (readOut)
+        stdOut_ = process.readAllStandardOutput();
+    if (readErr)
+        stdErr_ = process.readAllStandardError();
 
     return ok;
 }
