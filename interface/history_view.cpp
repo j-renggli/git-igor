@@ -112,6 +112,9 @@ bool UIHistoryView::initialise() {
         if (!ok)
             return;
 
+        if (backend.empty())
+            return;
+
         showActive(backend.currentRepo());
     });
 
