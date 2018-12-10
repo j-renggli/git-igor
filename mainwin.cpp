@@ -17,10 +17,10 @@
 #include <backend/repositorymanager.h>
 
 #include <interface/diff/view.h>
-#include <interface/history_view.h>
+#include <interface/history/view.h>
 #include <interface/progress.h>
 #include <interface/repositories.h>
-#include <interface/staging.h>
+#include <interface/staging/view.h>
 
 #include <preferences/preferences.h>
 
@@ -43,17 +43,19 @@ bool MainWin::initialise() {
 
     Preferences::instance().generateCSS();
 
-    pMainView_ = new QTabWidget;
-    setCentralWidget(pMainView_);
-
-    auto tab_layout = new QVBoxLayout;
-    pMainView_->setLayout(tab_layout);
+    setDockOptions(QMainWindow::AllowNestedDocks | QMainWindow::AllowTabbedDocks);
 
     view_ = new DiffView;
     view_->initialise();
+    auto diffDock = new QDockWidget("Diff", this);
+    diffDock->setWidget(view_);
+    addDockWidget(Qt::RightDockWidgetArea, diffDock);
 
     history_ = new UIHistoryView;
     history_->initialise();
+    auto historyDock = new QDockWidget("History", this);
+    historyDock->setWidget(history_);
+    addDockWidget(Qt::RightDockWidgetArea, historyDock);
 
     progress_ = new UIProgress;
     progress_->initialise();
@@ -64,9 +66,6 @@ bool MainWin::initialise() {
     staging_ = new UIStaging;
     staging_->initialise();
     addDockWidget(Qt::LeftDockWidgetArea, staging_);
-
-    tab_layout->addWidget(view_);
-    tab_layout->addWidget(history_);
 
     createActions();
     updateMenu();

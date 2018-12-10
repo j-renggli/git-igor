@@ -1,7 +1,33 @@
 BasedOnStyle: LLVM
-IndentWidth: 4
-
 Language: Cpp
-DerivePointerAlignment: false
+Standard: Cpp11
+
+AccessModifierOffset: -4
+ColumnLimit: 120
+IndentWidth: 4
+TabWidth: 4
+ContinuationIndentWidth: 4
+UseTab: Never
+NamespaceIndentation: None
+
 PointerAlignment: Left
+AlignAfterOpenBracket: Align
+AlignOperands: true
+AlignTrailingComments: true
+
+AlwaysBreakTemplateDeclarations: true
+BreakBeforeBraces: Linux
+#BreakConstructorInitializers: BeforeComma
+
+BinPackArguments: false
+BinPackParameters: false
+ExperimentalAutoDetectBinPacking: false
+
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortBlocksOnASingleLine: false
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+
+
 

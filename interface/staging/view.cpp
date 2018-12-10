@@ -1,4 +1,4 @@
-#include "staging.h"
+#include "view.h"
 
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QTreeView>
@@ -11,14 +11,19 @@
 
 #include <iostream>
 
-namespace gitigor {
+namespace gitigor
+{
 
-UIStaging::UIStaging()
-    : indexModel_(true), workTreeModel_(false), nowShowing_(true, size_t(-1)) {}
+UIStaging::UIStaging() : indexModel_(true), workTreeModel_(false), nowShowing_(true, size_t(-1))
+{
+}
 
-UIStaging::~UIStaging() {}
+UIStaging::~UIStaging()
+{
+}
 
-void UIStaging::initialise() {
+void UIStaging::initialise()
+{
     auto layout = new QVBoxLayout;
     index_ = new QTreeView;
     index_->setModel(&indexModel_);
@@ -54,17 +59,16 @@ void UIStaging::initialise() {
     Backend& backend = Backend::instance();
     connect(&backend, &Backend::onRepoUpdated, this, &UIStaging::onUpdate);
 
-    connect(workTree_, &QTreeView::clicked, this,
-            &UIStaging::onShowWorkTreeFile);
-    connect(workTree_, &QTreeView::doubleClicked, this,
-            &UIStaging::onStageFile);
+    connect(workTree_, &QTreeView::clicked, this, &UIStaging::onShowWorkTreeFile);
+    connect(workTree_, &QTreeView::doubleClicked, this, &UIStaging::onStageFile);
     connect(index_, &QTreeView::clicked, this, &UIStaging::onShowIndexFile);
     connect(index_, &QTreeView::doubleClicked, this, &UIStaging::onUnstageFile);
 
     connect(commit_, &QPushButton::clicked, this, &UIStaging::onCommit);
 }
 
-void UIStaging::onCommit(bool checked) {
+void UIStaging::onCommit(bool checked)
+{
     Backend& backend = Backend::instance();
     const Repository& repo = backend.currentRepo();
     repo.commit(message_->toPlainText());
@@ -75,7 +79,8 @@ void UIStaging::onCommit(bool checked) {
     backend.onRefresh();
 }
 
-void UIStaging::onUpdate() {
+void UIStaging::onUpdate()
+{
     Backend& backend = Backend::instance();
     const Repository& repo = backend.currentRepo();
 
@@ -98,31 +103,36 @@ void UIStaging::onUpdate() {
     showFile(nowShowing_.first, nowShowing_.second);
 }
 
-void UIStaging::onStageFile(const QModelIndex& index) {
+void UIStaging::onStageFile(const QModelIndex& index)
+{
     Backend& backend = Backend::instance();
     const Repository& repo = backend.currentRepo();
     repo.stage(workTreeModel_.getFile(index.row()));
     backend.onRefresh();
 }
 
-void UIStaging::onShowWorkTreeFile(const QModelIndex& index) {
+void UIStaging::onShowWorkTreeFile(const QModelIndex& index)
+{
     if (showFile(index.row(), true))
         index_->clearSelection();
 }
 
-void UIStaging::onUnstageFile(const QModelIndex& index) {
+void UIStaging::onUnstageFile(const QModelIndex& index)
+{
     Backend& backend = Backend::instance();
     const Repository& repo = backend.currentRepo();
     repo.unstage(indexModel_.getFile(index.row()));
     backend.onRefresh();
 }
 
-void UIStaging::onShowIndexFile(const QModelIndex& index) {
+void UIStaging::onShowIndexFile(const QModelIndex& index)
+{
     if (showFile(index.row(), false))
         workTree_->clearSelection();
 }
 
-bool UIStaging::showFile(size_t index, bool staging) {
+bool UIStaging::showFile(size_t index, bool staging)
+{
     Backend& backend = Backend::instance();
     const Repository& repo = backend.currentRepo();
     std::vector<Diff> diffs;
@@ -147,26 +157,35 @@ bool UIStaging::showFile(size_t index, bool staging) {
 
 ////////////////////////////////////////////////////////////////
 
-StageModel::StageModel(bool index) : index_(index) {}
+StageModel::StageModel(bool index) : index_(index)
+{
+}
 
-void StageModel::clear() {
+void StageModel::clear()
+{
     beginResetModel();
     files_.clear();
 }
 
-void StageModel::addFile(const FileStatus& file) { files_.push_back(file); }
+void StageModel::addFile(const FileStatus& file)
+{
+    files_.push_back(file);
+}
 
-FileStatus StageModel::getFile(size_t index) const {
+FileStatus StageModel::getFile(size_t index) const
+{
     index = std::max(size_t(0), std::min(index, files_.size() - 1));
     return files_.at(index);
 }
 
-void StageModel::update() {
+void StageModel::update()
+{
     std::sort(files_.begin(), files_.end());
     endResetModel();
 }
 
-QVariant StageModel::data(const QModelIndex& index, int role) const {
+QVariant StageModel::data(const QModelIndex& index, int role) const
+{
     size_t row = index.row();
 
     if (row >= files_.size())
@@ -200,12 +219,13 @@ QVariant StageModel::data(const QModelIndex& index, int role) const {
     return QVariant();
 }
 
-Qt::ItemFlags StageModel::flags(const QModelIndex& index) const {
+Qt::ItemFlags StageModel::flags(const QModelIndex& index) const
+{
     return QAbstractItemModel::flags(index);
 }
 
-QVariant StageModel::headerData(int section, Qt::Orientation orientation,
-                                int role) const {
+QVariant StageModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
     if (role != Qt::DisplayRole)
         return QVariant();
 
@@ -219,26 +239,29 @@ QVariant StageModel::headerData(int section, Qt::Orientation orientation,
     return QVariant("Path");
 }
 
-QModelIndex StageModel::index(int row, int column,
-                              const QModelIndex& parent) const {
+QModelIndex StageModel::index(int row, int column, const QModelIndex& parent) const
+{
     if (parent.isValid())
         return QModelIndex();
 
     return createIndex(row, column, nullptr); //&files_.at(row));
 }
 
-QModelIndex StageModel::parent(const QModelIndex& index) const {
+QModelIndex StageModel::parent(const QModelIndex& index) const
+{
     return QModelIndex();
 }
 
-int StageModel::columnCount(const QModelIndex& parent) const {
+int StageModel::columnCount(const QModelIndex& parent) const
+{
     //	if (parent.isValid())
     //		return 0;
 
     return 1;
 }
 
-int StageModel::rowCount(const QModelIndex& parent) const {
+int StageModel::rowCount(const QModelIndex& parent) const
+{
     if (parent.isValid())
         return 0;
 

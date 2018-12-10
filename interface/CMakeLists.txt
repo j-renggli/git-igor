@@ -1,10 +1,6 @@
 set(module_name interface)
 
 set(module_src
-	history_io.cpp
-	history_io.h
-	history_view.cpp
-	history_view.h
 	includes.h
 	progress.cpp
 	progress.h
@@ -12,13 +8,19 @@ set(module_src
 	repo_add.h
 	repositories.cpp
 	repositories.h
-	staging.cpp
-	staging.h
 
 	diff/io.cpp
 	diff/io.h
 	diff/view.cpp
 	diff/view.h
+
+	history/io.cpp
+	history/io.h
+	history/view.cpp
+	history/view.h
+
+	staging/view.cpp
+	staging/view.h
 
 	../preferences/preferences.cpp
 	../preferences/preferences.h

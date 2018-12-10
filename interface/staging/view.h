@@ -12,17 +12,19 @@
 
 #include <backend/repository.h>
 
-#include "includes.h"
+#include "../includes.h"
 
 class QTreeView;
 
-namespace gitigor {
+namespace gitigor
+{
 
 class Backend;
 class FileStatus;
 
-class StageModel : public QAbstractItemModel {
-  public:
+class StageModel : public QAbstractItemModel
+{
+public:
     StageModel(bool index);
 
     void clear();
@@ -32,36 +34,32 @@ class StageModel : public QAbstractItemModel {
 
     QVariant data(const QModelIndex& index, int role) const Q_DECL_OVERRIDE;
     Qt::ItemFlags flags(const QModelIndex& index) const Q_DECL_OVERRIDE;
-    QVariant headerData(int section, Qt::Orientation orientation,
-                        int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
-    QModelIndex
-    index(int row, int column,
-          const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
+    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
+    QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
     QModelIndex parent(const QModelIndex& index) const Q_DECL_OVERRIDE;
-    int columnCount(const QModelIndex& parent = QModelIndex()) const
-        Q_DECL_OVERRIDE;
-    int
-    rowCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
+    int columnCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
+    int rowCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
 
-  private:
+private:
     bool index_;
     std::vector<FileStatus> files_;
 };
 
-class interface_EXPORT UIStaging : public QDockWidget {
+class interface_EXPORT UIStaging : public QDockWidget
+{
     Q_OBJECT
 
-  public:
+public:
     UIStaging();
     virtual ~UIStaging();
 
-  public:
+public:
     void initialise();
 
-  signals:
+signals:
     void onShowDiff(const Diff& diff, bool staging);
 
-  private slots:
+private slots:
     void onCommit(bool checked);
     void onUpdate();
 
@@ -71,10 +69,10 @@ class interface_EXPORT UIStaging : public QDockWidget {
     void onUnstageFile(const QModelIndex& index);
     void onShowIndexFile(const QModelIndex& index);
 
-  private:
+private:
     bool showFile(size_t index, bool staging);
 
-  private:
+private:
     StageModel indexModel_;
     QTreeView* index_;
     StageModel workTreeModel_;

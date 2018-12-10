@@ -6,39 +6,41 @@
 
 #include <backend/git/logger.h> // Necessary due to registered LogItem...
 
-#include "includes.h"
+#include "../includes.h"
 
 class QWebChannel;
 class QWebEngineProfile;
 
-namespace gitigor {
+namespace gitigor
+{
 
 class GitLogger;
 class Repository;
 class UIHistoryIO;
 
-class interface_EXPORT UIHistoryView : public QWebEngineView {
+class interface_EXPORT UIHistoryView : public QWebEngineView
+{
     Q_OBJECT
 
-  public:
+public:
     UIHistoryView();
     virtual ~UIHistoryView();
 
-  public:
+public:
     bool initialise();
 
-  private:
+private:
     void update();
     // signals:
     //    void update();
 
-  public slots:
+public slots:
     void showActive(const Repository& repository);
 
-  private slots:
+private slots:
     void nextItem(const QJsonObject& item);
 
-  private:
+private:
     QWebEngineProfile* profile_;
     QWebChannel* channel_;
     UIHistoryIO* historyio_{nullptr};

@@ -1,4 +1,4 @@
-#include "history_view.h"
+#include "view.h"
 
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -12,15 +12,21 @@
 #include <backend/git/process.h>
 #include <backend/repository.h>
 
-#include "history_io.h"
+#include "io.h"
 
-namespace gitigor {
+namespace gitigor
+{
 
-UIHistoryView::UIHistoryView() {}
+UIHistoryView::UIHistoryView()
+{
+}
 
-UIHistoryView::~UIHistoryView() {}
+UIHistoryView::~UIHistoryView()
+{
+}
 
-bool UIHistoryView::initialise() {
+bool UIHistoryView::initialise()
+{
     profile_ = new QWebEngineProfile("Git Log History", this);
     channel_ = new QWebChannel(this);
 
@@ -121,19 +127,20 @@ bool UIHistoryView::initialise() {
     return true;
 }
 
-void UIHistoryView::nextItem(const QJsonObject& item) {
+void UIHistoryView::nextItem(const QJsonObject& item)
+{
     Q_ASSERT(historyio_);
     QString json = QJsonDocument(item).toJson(QJsonDocument::Compact);
     // qDebug() << json;
-    QString js =
-        QString("var scope = "
-                "angular.element(document.getElementById('history')).scope();\n"
-                "scope.addCommit(%1);")
-            .arg(json);
+    QString js = QString("var scope = "
+                         "angular.element(document.getElementById('history')).scope();\n"
+                         "scope.addCommit(%1);")
+                     .arg(json);
     page()->runJavaScript(js);
 }
 
-void UIHistoryView::showActive(const Repository& repository) {
+void UIHistoryView::showActive(const Repository& repository)
+{
     if (logger_) {
         logger_->stop();
         disconnect(cnxNextItem_);
@@ -147,12 +154,13 @@ void UIHistoryView::showActive(const Repository& repository) {
     if (!logger_)
         return;
 
-    cnxNextItem_ = connect(logger_.get(), &GitLogger::onItem, this,
-                           &UIHistoryView::nextItem);
+    cnxNextItem_ = connect(logger_.get(), &GitLogger::onItem, this, &UIHistoryView::nextItem);
 
     logger_->start();
 }
 
-void UIHistoryView::update() {}
+void UIHistoryView::update()
+{
+}
 
 } // namespace gitigor
