@@ -1,54 +1,55 @@
-SET(QT_REQUIRED
+set(QT_REQUIRED
 Qt5Core
 Qt5Gui
+Qt5Network
+Qt5Positioning
+Qt5PrintSupport
+Qt5Qml
+Qt5Quick
+Qt5QuickWidgets
 Qt5WebChannel
 Qt5WebEngine
+Qt5WebEngineCore
 Qt5WebEngineWidgets
 Qt5Widgets
 )
 
-SET(QT_DEPS
+set(QT_DEPS
 )
 
-SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-SET(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOMOC ON)
 
-IF (MSVC)
-	SET(QT_PATH "C:\\Qt\\5.8\\msvc2015_64\\")
-	SET(CMAKE_PREFIX_PATH ${QT_PATH})
-	LINK_DIRECTORIES("${QT_PATH}\\lib")
-	SET(CMAKE_INCLUDE_CURRENT_DIR ON)
+if (MSVC)
+    set(QT_PATH "C:\\Qt\\5.10.1\\msvc2015_64\\")
+    set(CMAKE_PREFIX_PATH ${QT_PATH})
+    link_directories("${QT_PATH}\\lib")
+    set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-	SET(QT_USED ${QT_REQUIRED} ${QT_DEPS})
-	FOREACH(QTX ${QT_USED})
-		MESSAGE(STATUS "Copying ${QT_PATH}/bin/${QTX}.dll TO ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/%BUILD_TYPE%")
-		FILE(COPY ${QT_PATH}/bin/${QTX}.dll
-			DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Release
-		)
-		FILE(COPY ${QT_PATH}/bin/${QTX}d.dll
-			DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Debug
-		)
-	ENDFOREACH()
+    set(QT_USED ${QT_REQUIRED} ${QT_DEPS})
+    foreach(QTX ${QT_USED})
+        message(STATUS "---- Copying Qt5 libraries to ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} ----")
+        if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+            set(FILE_PATH ${QT_PATH}/bin/${QTX}d.dll)
+        endif ()
+        if (CMAKE_BUILD_TYPE STREQUAL "Release")
+            set(FILE_PATH ${QT_PATH}/bin/${QTX}.dll)
+        endif ()
+        message(STATUS "  ${FILE_PATH}")
+        file(COPY ${FILE_PATH}
+                DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/
+        )
+    endforeach()
+endif (MSVC)
 
-	FOREACH(QTX ${QT_EXT})
-		MESSAGE(STATUS "Copying ${QT_PATH}/bin/${QTX}.dll TO ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/%BUILD_TYPE%")
-		FILE(COPY ${QT_PATH}/bin/${QTX}.dll
-			DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Release
-		)
-		FILE(COPY ${QT_PATH}/bin/${QTX}.dll
-			DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Debug
-		)
-	ENDFOREACH()
-ENDIF (MSVC)
+foreach(QTX ${QT_REQUIRED})
+        find_package(${QTX} REQUIRED)
 
-FOREACH(QTX ${QT_REQUIRED})
-	FIND_PACKAGE(${QTX} REQUIRED)
-
-	IF (MSVC)
-		LINK_LIBRARIES(optimized ${QTX} debug "${QTX}d")
-	ELSE (MSVC)
-		LINK_LIBRARIES(${QTX})
-	ENDIF (MSVC)
-ENDFOREACH()
+        if (MSVC)
+                link_libraries(optimized ${QTX} debug "${QTX}d")
+        else (MSVC)
+                link_libraries(${QTX})
+        endif (MSVC)
+endforeach()
 

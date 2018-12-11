@@ -5,8 +5,9 @@
 #include <QtCore/QDir>
 
 #include "diff/diff.h"
-#include "includes.h"
 #include "runner.h"
+
+#include "backend_Export.h"
 
 namespace gitigor {
 

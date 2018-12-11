@@ -5,22 +5,27 @@
 #include <QJsonObject>
 #include <QtGui/QFont>
 
-namespace gitigor {
+namespace gitigor
+{
 
 RepositoryManager RepositoryManager::s_repositories;
 
 RepositoryManager::RepositoryManager() : active_(-1) {}
 
-RepositoryManager::RepositoryManager(const RepositoryManager& rhs) {
+RepositoryManager::RepositoryManager(const RepositoryManager& rhs)
+{
     Q_ASSERT(false);
 }
 
-RepositoryManager& RepositoryManager::instance() { return s_repositories; }
+RepositoryManager& RepositoryManager::instance()
+{
+    return s_repositories;
+}
 
-bool RepositoryManager::add(const QString& name, const QDir& root) {
+bool RepositoryManager::add(const QString& name, const QDir& root)
+{
     beginResetModel();
-    repositories_.push_back(
-        std::unique_ptr<Repository>(new Repository(name, root)));
+    repositories_.push_back(std::unique_ptr<Repository>(new Repository(name, root)));
     if (active_ >= repositories_.size()) {
         active_ = repositories_.size() - 1;
     }
@@ -28,7 +33,8 @@ bool RepositoryManager::add(const QString& name, const QDir& root) {
     endResetModel();
 }
 
-bool RepositoryManager::remove(size_t index) {
+bool RepositoryManager::remove(size_t index)
+{
     if (index >= repositories_.size())
         return false;
 
@@ -38,7 +44,8 @@ bool RepositoryManager::remove(size_t index) {
     return true;
 }
 
-bool RepositoryManager::setActive(size_t index) {
+bool RepositoryManager::setActive(size_t index)
+{
     if (index >= repositories_.size())
         return false;
     beginResetModel();
@@ -47,7 +54,8 @@ bool RepositoryManager::setActive(size_t index) {
     return true;
 }
 
-QVariant RepositoryManager::data(const QModelIndex& index, int role) const {
+QVariant RepositoryManager::data(const QModelIndex& index, int role) const
+{
     const size_t row = index.row();
     if (role == Qt::DisplayRole) {
         if (row < repositories_.size()) {
@@ -69,8 +77,8 @@ QVariant RepositoryManager::data(const QModelIndex& index, int role) const {
     return QVariant();
 }
 
-QVariant RepositoryManager::headerData(int section, Qt::Orientation orientation,
-                                       int role) const {
+QVariant RepositoryManager::headerData(int section, Qt::Orientation orientation, int role) const
+{
     if (role == Qt::DisplayRole && orientation == Qt::Horizontal) {
         switch (section) {
         case 0:
@@ -83,15 +91,16 @@ QVariant RepositoryManager::headerData(int section, Qt::Orientation orientation,
     return QVariant();
 }
 
-QModelIndex RepositoryManager::index(int row, int column,
-                                     const QModelIndex& parent) const {
+QModelIndex RepositoryManager::index(int row, int column, const QModelIndex& parent) const
+{
     if (parent.isValid())
         return QModelIndex();
 
     return createIndex(row, column, nullptr);
 }
 
-bool RepositoryManager::initialise(const QFileInfo& storagePath) {
+bool RepositoryManager::initialise(const QFileInfo& storagePath)
+{
     storagePath_ = storagePath;
     /*
     repositories_.push_back(std::unique_ptr<Repository>(new
@@ -102,7 +111,8 @@ bool RepositoryManager::initialise(const QFileInfo& storagePath) {
     return load();
 }
 
-bool RepositoryManager::load() {
+bool RepositoryManager::load()
+{
     beginResetModel();
 
     // Empty repos...
@@ -126,8 +136,8 @@ bool RepositoryManager::load() {
     QJsonArray repos = main["repositories"].toArray();
     for (int i = 0; i < repos.size(); ++i) {
         QJsonObject item = repos[i].toObject();
-        repositories_.push_back(std::unique_ptr<Repository>(new Repository(
-            item["name"].toString(), QDir(item["root"].toString()))));
+        repositories_.push_back(
+            std::unique_ptr<Repository>(new Repository(item["name"].toString(), QDir(item["root"].toString()))));
         repositories_.back()->initialise();
     }
 
@@ -147,7 +157,8 @@ void RepositoryManager::reload()
         endResetModel();
 }
 */
-bool RepositoryManager::save() {
+bool RepositoryManager::save()
+{
     QFile file(storagePath_.filePath());
     if (!file.open(QIODevice::WriteOnly)) {
         return false;
@@ -170,18 +181,21 @@ bool RepositoryManager::save() {
     return true;
 }
 
-QModelIndex RepositoryManager::parent(const QModelIndex& index) const {
+QModelIndex RepositoryManager::parent(const QModelIndex& index) const
+{
     return QModelIndex();
 }
 
-int RepositoryManager::columnCount(const QModelIndex& parent) const {
+int RepositoryManager::columnCount(const QModelIndex& parent) const
+{
     return 2;
 }
 
-int RepositoryManager::rowCount(const QModelIndex& parent) const {
+int RepositoryManager::rowCount(const QModelIndex& parent) const
+{
     if (parent.isValid())
         return 0;
 
-    return repositories_.size();
+    return static_cast<int>(repositories_.size());
 }
-}
+} // namespace gitigor

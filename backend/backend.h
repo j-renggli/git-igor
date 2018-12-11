@@ -3,9 +3,10 @@
 #include <QtCore/QDir>
 #include <QtCore/QObject>
 
-#include "includes.h"
 #include "repository.h"
 #include "runner.h"
+
+#include "backend_Export.h"
 
 namespace gitigor {
 

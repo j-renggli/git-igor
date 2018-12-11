@@ -11,13 +11,18 @@
 
 #include "repo_add.h"
 
-namespace gitigor {
+namespace gitigor
+{
 
-UIRepositories::UIRepositories() : selected_(-1) { setModal(true); }
+UIRepositories::UIRepositories() : selected_(-1)
+{
+    setModal(true);
+}
 
 UIRepositories::~UIRepositories() {}
 
-void UIRepositories::initialise() {
+void UIRepositories::initialise()
+{
     auto layout = new QGridLayout;
 
     int leftCol = 0;
@@ -75,15 +80,12 @@ void UIRepositories::initialise() {
     setLayout(layout);
     setWindowTitle("Repositories");
 
-    connect(repositories_, &QTreeView::clicked, this,
-            &UIRepositories::onSelecting);
+    connect(repositories_, &QTreeView::clicked, this, &UIRepositories::onSelecting);
     connect(cancel_, &QPushButton::clicked, this, &UIRepositories::onCancel);
     connect(commit_, &QPushButton::clicked, this, &UIRepositories::onCommit);
     connect(repoAdd_, &QPushButton::clicked, this, &UIRepositories::onAddRepo);
-    connect(repoDel_, &QPushButton::clicked, this,
-            &UIRepositories::onDeleteRepo);
-    connect(repositories_, &QTreeView::doubleClicked, this,
-            &UIRepositories::onActivateRepo);
+    connect(repoDel_, &QPushButton::clicked, this, &UIRepositories::onDeleteRepo);
+    connect(repositories_, &QTreeView::doubleClicked, this, &UIRepositories::onActivateRepo);
 
     repoAddUI_ = new UIRepoAdd(true);
     repoAddUI_->initialise();
@@ -91,7 +93,8 @@ void UIRepositories::initialise() {
     remoteAddUI_->initialise();
 }
 
-void UIRepositories::onAddRepo() {
+void UIRepositories::onAddRepo()
+{
     auto accepted = repoAddUI_->exec();
     if (accepted == QDialog::Accepted) {
         auto& manager = RepositoryManager::instance();
@@ -100,31 +103,36 @@ void UIRepositories::onAddRepo() {
     }
 }
 
-void UIRepositories::onDeleteRepo() {
+void UIRepositories::onDeleteRepo()
+{
     auto& manager = RepositoryManager::instance();
     if (manager.remove(selected_))
         updateUI();
 }
 
-void UIRepositories::onActivateRepo(const QModelIndex& index) {
+void UIRepositories::onActivateRepo(const QModelIndex& index)
+{
     auto& manager = RepositoryManager::instance();
     manager.setActive(index.row());
 }
 
-void UIRepositories::onCancel() {
+void UIRepositories::onCancel()
+{
     // Reload repositories
     RepositoryManager::instance().load();
     reject();
 }
 
-void UIRepositories::onCommit() {
+void UIRepositories::onCommit()
+{
     // Save to disk, reload
     RepositoryManager::instance().save();
     RepositoryManager::instance().load();
     accept();
 }
 
-void UIRepositories::onSelecting(const QModelIndex& index) {
+void UIRepositories::onSelecting(const QModelIndex& index)
+{
     selected_ = index.row();
 
     auto& manager = RepositoryManager::instance();
@@ -143,9 +151,13 @@ void UIRepositories::onSelecting(const QModelIndex& index) {
     }
 }
 
-void UIRepositories::onShow() { show(); }
+void UIRepositories::onShow()
+{
+    show();
+}
 
-void UIRepositories::updateUI() {
+void UIRepositories::updateUI()
+{
     // repositoriesModel_.reload();
 }
 
@@ -225,8 +237,8 @@ int RepositoriesModel::rowCount(const QModelIndex& parent) const
 
 RemotesModel::RemotesModel() : manager_(RepositoryManager::instance()) {}
 
-QVariant RemotesModel::headerData(int section, Qt::Orientation orientation,
-                                  int role) const {
+QVariant RemotesModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
     if (role != Qt::DisplayRole)
         return QVariant();
 
@@ -243,32 +255,38 @@ QVariant RemotesModel::headerData(int section, Qt::Orientation orientation,
     }
 }
 
-QVariant RemotesModel::data(const QModelIndex& index, int role) const {
+QVariant RemotesModel::data(const QModelIndex& index, int role) const
+{
     // size_t row = index.row();
 
     // if (row >= files_.size())
     return QVariant();
 }
 
-QModelIndex RemotesModel::index(int row, int column,
-                                const QModelIndex& parent) const {
+QModelIndex RemotesModel::index(int row, int column, const QModelIndex& parent) const
+{
     if (parent.isValid())
         return QModelIndex();
 
     return createIndex(row, column, nullptr);
 }
 
-QModelIndex RemotesModel::parent(const QModelIndex& index) const {
+QModelIndex RemotesModel::parent(const QModelIndex& index) const
+{
     return QModelIndex();
 }
 
-int RemotesModel::columnCount(const QModelIndex& parent) const { return 2; }
+int RemotesModel::columnCount(const QModelIndex& parent) const
+{
+    return 2;
+}
 
-int RemotesModel::rowCount(const QModelIndex& parent) const {
+int RemotesModel::rowCount(const QModelIndex& parent) const
+{
     if (parent.isValid() || manager_.empty())
         return 0;
 
     auto& repo = manager_.active();
-    return repo.remotes().size();
+    return static_cast<int>(repo.remotes().size());
 }
-}
+} // namespace gitigor

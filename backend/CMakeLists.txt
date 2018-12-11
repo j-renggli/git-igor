@@ -1,11 +1,10 @@
-set(module_name backend)
+set(target backend)
 
-set(module_src
+set(target_src
 	actions.cpp
 	actions.h
 	backend.cpp
 	backend.h
-	includes.h
 	repository.cpp
 	repository.h
 	repositorymanager.cpp
@@ -28,6 +27,15 @@ set(module_src
 	git/process.h
 	)
 
-add_definitions(-DDLL_BACKEND)
+add_library(${target} SHARED ${target_src})
 
-add_library(${module_name} SHARED ${module_src})
+include(GenerateExportHeader)
+
+target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+
+generate_export_header(${target}
+    BASE_NAME ${target} # name for add_definitions
+    EXPORT_MACRO_NAME ${target}_EXPORT # macro name
+    EXPORT_FILE_NAME ${target}_Export.h # file name
+)
+

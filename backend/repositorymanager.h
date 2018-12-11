@@ -2,10 +2,11 @@
 
 #include <memory>
 
-#include "includes.h"
 #include "repository.h"
 
 #include <QtCore/QAbstractItemModel>
+
+#include "backend_Export.h"
 
 namespace gitigor {
 

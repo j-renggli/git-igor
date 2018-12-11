@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QThread>
 
-#include "../includes.h"
+#include "backend_Export.h"
 
 namespace gitigor {
 

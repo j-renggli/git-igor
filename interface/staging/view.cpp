@@ -14,13 +14,9 @@
 namespace gitigor
 {
 
-UIStaging::UIStaging() : indexModel_(true), workTreeModel_(false), nowShowing_(true, size_t(-1))
-{
-}
+UIStaging::UIStaging() : indexModel_(true), workTreeModel_(false), nowShowing_(size_t(-1), true) {}
 
-UIStaging::~UIStaging()
-{
-}
+UIStaging::~UIStaging() {}
 
 void UIStaging::initialise()
 {
@@ -157,9 +153,7 @@ bool UIStaging::showFile(size_t index, bool staging)
 
 ////////////////////////////////////////////////////////////////
 
-StageModel::StageModel(bool index) : index_(index)
-{
-}
+StageModel::StageModel(bool index) : index_(index) {}
 
 void StageModel::clear()
 {
@@ -265,6 +259,7 @@ int StageModel::rowCount(const QModelIndex& parent) const
     if (parent.isValid())
         return 0;
 
-    return files_.size();
+    return static_cast<int>(files_.size());
 }
-}
+
+} // namespace gitigor

@@ -6,7 +6,7 @@
 
 #include <backend/diff/diff.h>
 
-#include "../includes.h"
+#include "interface_Export.h"
 
 class QWebChannel;
 class QWebEngineProfile;

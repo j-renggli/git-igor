@@ -6,7 +6,7 @@
 
 #include <backend/git/logger.h> // Necessary due to registered LogItem...
 
-#include "../includes.h"
+#include "interface_Export.h"
 
 class QWebChannel;
 class QWebEngineProfile;

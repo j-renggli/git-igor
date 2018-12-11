@@ -5,7 +5,7 @@
 
 #include <QtWidgets/QDialog>
 
-#include "includes.h"
+#include "interface_Export.h"
 
 class QLineEdit;
 class QPushButton;

@@ -1,7 +1,6 @@
-set(module_name interface)
+set(target interface)
 
-set(module_src
-	includes.h
+set(target_src
 	progress.cpp
 	progress.h
 	repo_add.cpp
@@ -26,4 +25,15 @@ set(module_src
 	../preferences/preferences.h
 	)
 
-add_library(${module_name} SHARED ${module_src})
+add_library(${target} SHARED ${target_src})
+
+include(GenerateExportHeader)
+
+target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+target_link_libraries(${target} backend)
+
+generate_export_header(${target}
+    BASE_NAME ${target} # name for add_definitions
+    EXPORT_MACRO_NAME ${target}_EXPORT # macro name
+    EXPORT_FILE_NAME ${target}_Export.h # file name
+)

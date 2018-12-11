@@ -4,8 +4,9 @@
 
 #include <QString>
 
-#include "../includes.h"
 #include "line.h"
+
+#include "backend_Export.h"
 
 namespace gitigor {
 

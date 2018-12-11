@@ -4,34 +4,36 @@
 
 #include <QtWidgets/QDialog>
 
-#include "includes.h"
+#include "interface_Export.h"
 
 class QLineEdit;
 class QProgressBar;
 class QTextEdit;
 
-namespace gitigor {
+namespace gitigor
+{
 
-class interface_EXPORT UIProgress : public QDialog {
+class interface_EXPORT UIProgress : public QDialog
+{
     Q_OBJECT
 
-  public:
+public:
     UIProgress();
     virtual ~UIProgress();
 
     void initialise();
 
-  public slots:
+public slots:
     void onShow();
     void onSetCommand(const QString& command);
     void onOutput(const QString& output);
     /*void onError(const QString& error);
-    */
+     */
     void onWorkDone();
 
-  private:
+private:
     QLineEdit* command_;
     QTextEdit* output_;
     QProgressBar* progress_;
 };
-}
+} // namespace gitigor
